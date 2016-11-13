@@ -39,5 +39,6 @@ Model estimation using Baum-Welch algorithm
 
 ### Dependencies
 Rely on package numeric.js for matrix algebra
+
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/numeric/1.2.6/numeric.js"></script>
 
