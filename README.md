@@ -12,8 +12,15 @@ Javascript functions to fit and to simulate probabilistic models
     console.log(glaw.simulate());
 
 
-### Winner-Take-All Clustering
+### Winner-Take-All Clustering (multi-dimensional)
 
+    var observations = (some list of vectors)
+    var nbclasses = 2;
+    var lambda = 0.01; // learning rate
+    var nbepochs = 1000;
+    var centers = WinnerTakeAll(observations, nbclasses, lambda, nbepochs);
+    console.log(centers[0]);
+    console.log(centers[1]);
 
 ### Gaussian Mixture Model (multi-dimensional)
 Model estimation using EM (expectation-maximization) algorithm
