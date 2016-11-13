@@ -11,6 +11,10 @@ Javascript functions to fit and to simulate probabilistic models
     console.log(glaw.simulate());
     console.log(glaw.simulate());
 
+
+### Winner-Take-All Clustering
+
+
 ### Gaussian Mixture Model (multi-dimensional)
 Model estimation using EM (expectation-maximization) algorithm
 
