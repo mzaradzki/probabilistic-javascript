@@ -35,3 +35,9 @@ Model estimation using Baum-Welch algorithm
     console.log(hmm2.observationProbabilityCPDs[0].means);
     console.log(hmm2.observationProbabilityCPDs[1].means);
     console.log(hmm2.observationProbabilityCPDs[2].means);
+
+
+### Dependencies
+Rely on package numeric.js for matrix algebra
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/numeric/1.2.6/numeric.js"></script>
+
