@@ -28,61 +28,25 @@
 		<script type="text/javascript" src="../gmm.js"></script>
 		<script type="text/javascript" src="../hmm.js"></script>
 		<script>
-		// returns a gaussian random function with the given mean and stdev.
-		function gaussian(mean, stdev) {
-		    return function() {
-		       // Box Muller method
-		       var u = 1 - Math.random(); // Subtraction to flip [0, 1) to (0, 1].
-			   var v = 1 - Math.random();
-			   var g = Math.sqrt( -2.0 * Math.log( u ) ) * Math.cos( 2.0 * Math.PI * v );
-			   return mean + stdev * g;
-		   }
-		};
-
-		var gmm = new GaussianMixtureModel(2,2);
-		//
-		gmm.stateDistribution = [0.5, 0.5];
-		//
-		gmm.observationProbabilityCPDs[0] = new GaussianLaw([2, 4.5], [[0.6*0.6, 0], [0, 1]]);
-		gmm.observationProbabilityCPDs[1] = new GaussianLaw([4, 2.5], [[0.6*0.6, 0], [0, 0.6*0.6]]);
-
-		var points = gmm.simulateStates(200, true).observations;
-
-		/*var standardAx = gaussian(2, 0.6);
-		var standardAy = gaussian(4.5, 1);
-		var standardBx = gaussian(4, 0.6);
-		var standardBy = gaussian(2.5, 0.6);
-
-		var A = [];
-		var B = [];
-		var points = [];
-
-		// make a bunch of standard variates
-		for(i=0; i<200; i++) {
-		    //console.log(standardAx());
-		    var a = [standardAx(), standardAy()]; 
-		    A.push(a);
-		    var b = [standardBx(), standardBy()]; 
-		    B.push(b);
-		    if (Math.random()>0.5) {
-		    	points.push(a);
-		    }
-		    else {
-		    	points.push(b);
-		    }
-		}*/
-
-		var guesses = WinnerTakeAll(points,2, 0.01, 1000);
-		var guessA = guesses[0];
-		var guessB = guesses[1];
-		console.log(guessA);
-		console.log(guessB);
-		console.log("end of winner take all");
-		/*
-		console.log("start of EM");
-		var gmm = new GaussianMixtureModel(2,2);
-		gmm.fitObservations(points, 25);
-		*/
+			// use GMM for convenient data simulation
+			var gmm = new GaussianMixtureModel(2,2);
+			//
+			gmm.stateDistribution = [0.5, 0.5];
+			gmm.observationProbabilityCPDs[0] = new GaussianLaw([2, 4.5], [[0.6*0.6, 0], [0, 1]]);
+			gmm.observationProbabilityCPDs[1] = new GaussianLaw([4, 2.5], [[0.6*0.6, 0], [0, 0.6*0.6]]);
+			// simulation
+			var points = gmm.simulateStates(200, true).observations;
+			// estimation
+			var guesses = WinnerTakeAll(points,2, 0.01, 1000);
+			var guessA = guesses[0];
+			var guessB = guesses[1];
+			console.log(guessA);
+			console.log(guessB);
+			/*
+			console.log("start of EM");
+			var gmm = new GaussianMixtureModel(2,2);
+			gmm.fitObservations(points, 25);
+			*/
 		</script>
 	</head>
 	<body>
