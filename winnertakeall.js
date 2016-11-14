@@ -15,13 +15,13 @@ function WinnerTakeAll(observations, nbclasses, lambda, nbepochs) {
 	  var bestdelta;
 	  var bestnorm2 = -1;
 	  for (var c=0; c<nbclasses; c++) {
-	  	var delta = numeric.sub(point, guesses[c]);
-	  	var norm2 = numeric.dot(delta, delta);
-	  	if ((c==0) || (norm2<bestnorm2)) {
-	  		bestclass = c;
-	  		bestdelta = delta;
-	  		bestnorm2 = norm2;
-	  	}
+		var delta = numeric.sub(point, guesses[c]);
+		var norm2 = numeric.dot(delta, delta);
+		if ((c==0) || (norm2<bestnorm2)) {
+			bestclass = c;
+			bestdelta = delta;
+			bestnorm2 = norm2;
+		}
 	  }
 	  guesses[bestclass] = numeric.add(guesses[bestclass], numeric.mul(bestdelta, lambda));
 	}
