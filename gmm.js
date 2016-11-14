@@ -113,3 +113,37 @@ GaussianMixtureModel.prototype.fitObservations = function(observations, maxIters
 };
 
 
+GibbsGMM = function(nbstates, mcmcsteps, observations) {
+  // see T.Hastie, R.Tibshirani, J.Friedman : The Elements of Statistical Learning
+  // sample the means only at present
+  // TO DO : extend to whole simulation
+  var obsdim = observations[0].length;
+  var gmm0 = new GaussianMixtureModel(nbstates, obsdim);
+  gmm0.fitObservations(observations);
+  for (var mcstep=0; mcstep<mcmcsteps; mcstep++) {
+    console.log('new MCMC step')
+    var denoms = numeric.mul(gmm0.stateDistribution, 0); // null vector of correct dimension
+    var guesses = [];
+    for (var s=0; s<nbstates; s++) {
+      guesses.push( numeric.mul(gmm0.stateDistribution, 0) ); // null vector of correct dimension
+    }
+    for (var t=0; t<observations.length; t++) {
+      var probas = gmm0._softmax(observations[t]);
+      var activestates = []; // TO DO : random binary vector to simulate
+      for (var s=0; s<nbstates; s++) {
+        guesses = numeric.add(guesses[s], numeric.mul(observations[i], activestates[s]));
+      }
+      denoms = numeric.add(denoms, activestates);
+    }
+    for (var s=0; s<nbstates; s++) {
+      guesses = numeric.div(guesses[s], denoms[s]);
+    }
+    for (var s=0; s<nbstates; s++) {
+      var covariances = gmm0.observationProbabilityCPDs[s].covariances
+      var posterior = new GaussianLaw(guesses[s], covariances);
+      var sampledmeans = posterior.simulate();
+      gmm0.observationProbabilityCPDs[s] = new GaussianLaw(sampledmeans, covariances);
+      console.log(sampledmeans);
+    }
+  }
+};

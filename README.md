@@ -24,13 +24,14 @@ Javascript functions to fit and to simulate probabilistic models
 
 ### Gaussian Mixture Model (multi-dimensional)
 Model estimation using EM (expectation-maximization) algorithm
+Bayesian sampling of parameters using Gibss Markov Chain Monte Carlo (MCMC)
 
     var nbstates = 2;
     var obsdim = 3;
     var gmm = new GaussianMixtureModel(nbstates, obsdim);
 
 ### Hidden Markov Model (multi-dimensional)
-Model estimation using Baum-Welch algorithm
+Model estimation using Baum-Welch (EM with forward-backward steps) algorithm
 
     var nbstates = 2;
     var obsdim = 3;
