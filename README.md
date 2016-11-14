@@ -27,6 +27,7 @@ Javascript functions to fit and to simulate probabilistic models
 * Bayesian sampling of parameters using Gibbs Markov Chain Monte Carlo (MCMC)
 
 
+
     var nbstates = 2;
     var obsdim = 3;
     var gmm1 = new GaussianMixtureModel(nbstates, obsdim);
@@ -37,6 +38,7 @@ Javascript functions to fit and to simulate probabilistic models
     var gmm2 = new GaussianMixtureModel(nbstates, obsdim);
     var maxIters = 50;
     gmm2.fitObservations(points, maxIters, false);
+
 
     // bayesian estimation with Gibbs sampling
     var observations = (some list of vectors)
