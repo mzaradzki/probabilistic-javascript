@@ -119,27 +119,46 @@ GibbsGMM = function(nbstates, mcmcsteps, observations) {
   // TO DO : extend to whole simulation
   var obsdim = observations[0].length;
   var gmm0 = new GaussianMixtureModel(nbstates, obsdim);
-  gmm0.fitObservations(observations);
+  gmm0.fitObservations(observations, 100); // to get a good guess
+  //
+  for (var s=0; s<nbstates; s++) {
+    console.log(gmm0.observationProbabilityCPDs[s].means); // to show initial values
+  }
+  //
   for (var mcstep=0; mcstep<mcmcsteps; mcstep++) {
     console.log('new MCMC step')
     var denoms = numeric.mul(gmm0.stateDistribution, 0); // null vector of correct dimension
     var guesses = [];
     for (var s=0; s<nbstates; s++) {
-      guesses.push( numeric.mul(gmm0.stateDistribution, 0) ); // null vector of correct dimension
+      guesses.push( numeric.mul(observations[0], 0) ); // null vector of correct dimension
     }
     for (var t=0; t<observations.length; t++) {
       var probas = gmm0._softmax(observations[t]);
-      var activestates = []; // TO DO : random binary vector to simulate
+      var activestate = -1;
+      var r = Math.random();
+      var cumprob = 0;
       for (var s=0; s<nbstates; s++) {
-        guesses = numeric.add(guesses[s], numeric.mul(observations[i], activestates[s]));
+        cumprob+= probas[s];
+        if ((activestate<0) && (r<cumprob))
+        {
+          activestate = s;
+        }
       }
-      denoms = numeric.add(denoms, activestates);
+      if ((activestate<0) || (activestate>=nbstates))
+      {
+        throw new Error('states was not assigned properly');
+      }
+      guesses[activestate] = numeric.add(guesses[activestate], observations[t]);
+      var activations = numeric.mul(denoms, 0); // null vector of correct dimension
+      activations[activestate] = 1;
+      denoms = numeric.add(denoms, activations);
     }
     for (var s=0; s<nbstates; s++) {
-      guesses = numeric.div(guesses[s], denoms[s]);
+      guesses[s] = numeric.div(guesses[s], denoms[s]);
     }
+    console.log(numeric.div(denoms, numeric.sum(denoms)));
     for (var s=0; s<nbstates; s++) {
-      var covariances = gmm0.observationProbabilityCPDs[s].covariances
+      var covariances = gmm0.observationProbabilityCPDs[s].covariances;
       var posterior = new GaussianLaw(guesses[s], covariances);
       var sampledmeans = posterior.simulate();
       gmm0.observationProbabilityCPDs[s] = new GaussianLaw(sampledmeans, covariances);
