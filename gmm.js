@@ -113,27 +113,30 @@ GaussianMixtureModel.prototype.fitObservations = function(observations, maxIters
 };
 
 
-GibbsGMM = function(nbstates, mcmcsteps, observations) {
+GibbsGMM = function(nbstates, mcmcsteps, prioruncertainty, observations) {
   // see T.Hastie, R.Tibshirani, J.Friedman : The Elements of Statistical Learning
   // sample the means only at present
   // TO DO : extend to whole simulation
   var obsdim = observations[0].length;
   var gmm0 = new GaussianMixtureModel(nbstates, obsdim);
   gmm0.fitObservations(observations, 100); // to get a good guess
-  //
   for (var s=0; s<nbstates; s++) {
     console.log(gmm0.observationProbabilityCPDs[s].means); // to show initial values
   }
+  // Prior distribution of cluster mean : the same for all clusters
+  var prior = new GaussianLaw(numeric.mul(observations[0], 0), numeric.mul(numeric.identity(obsdim), prioruncertainty));
   //
   for (var mcstep=0; mcstep<mcmcsteps; mcstep++) {
     console.log('new MCMC step')
     var denoms = numeric.mul(gmm0.stateDistribution, 0); // null vector of correct dimension
+    var totalprobas = numeric.mul(gmm0.stateDistribution, 0); // null vector of correct dimension
     var guesses = [];
     for (var s=0; s<nbstates; s++) {
       guesses.push( numeric.mul(observations[0], 0) ); // null vector of correct dimension
     }
     for (var t=0; t<observations.length; t++) {
       var probas = gmm0._softmax(observations[t]);
+      totalprobas = numeric.add(totalprobas, probas);
       var activestate = -1;
       var r = Math.random();
       var cumprob = 0;
@@ -156,12 +159,23 @@ GibbsGMM = function(nbstates, mcmcsteps, observations) {
     for (var s=0; s<nbstates; s++) {
       guesses[s] = numeric.div(guesses[s], denoms[s]);
     }
-    console.log(numeric.div(denoms, numeric.sum(denoms)));
+    //console.log(numeric.div(denoms, numeric.sum(denoms)));
+    console.log(numeric.div(totalprobas, numeric.sum(totalprobas)));
     for (var s=0; s<nbstates; s++) {
-      var covariances = gmm0.observationProbabilityCPDs[s].covariances;
-      var posterior = new GaussianLaw(guesses[s], covariances);
+      // see Conjugate Priors for multivariate-Gaussian with known covariance :
+      // https://en.wikipedia.org/wiki/Conjugate_prior
+      var n = denoms[s];
+      var truecov = gmm0.observationProbabilityCPDs[s].covariances; // WARNING : in reality not known, should use Wishart distribution !!!
+      var priormean = prior.means;
+      var priorcov = prior.covariances;
+      var posteriorprec = numeric.add(numeric.inv(priorcov), numeric.mul(n, numeric.inv(truecov)));
+      var posteriorcov = numeric.inv(posteriorprec);
+      var posteriormean1 = numeric.dot(numeric.inv(priorcov), priormean);
+      var posteriormean2 = numeric.mul(n, numeric.dot(numeric.inv(truecov), guesses[s]));
+      var posteriormean = numeric.dot(posteriorcov, numeric.add(posteriormean1, posteriormean2)); 
+      var posterior = new GaussianLaw(posteriormean, posteriorcov);
       var sampledmeans = posterior.simulate();
-      gmm0.observationProbabilityCPDs[s] = new GaussianLaw(sampledmeans, covariances);
+      gmm0.observationProbabilityCPDs[s] = new GaussianLaw(sampledmeans, truecov);
       console.log(sampledmeans);
     }
   }

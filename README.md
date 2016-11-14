@@ -28,7 +28,20 @@ Javascript functions to fit and to simulate probabilistic models
 
     var nbstates = 2;
     var obsdim = 3;
-    var gmm = new GaussianMixtureModel(nbstates, obsdim);
+    var gmm1 = new GaussianMixtureModel(nbstates, obsdim);
+    // simulation
+    var pathLength = 200;
+    var points = gmm1.simulateStates(pathLength, true).observations;
+    // estimation with EM algorithm
+    var gmm2 = new GaussianMixtureModel(nbstates, obsdim);
+    var maxIters = 50;
+    gmm2.fitObservations(points, maxIters, false);
+
+    // bayesian estimation with Gibbs sampling
+    var observations = (some list of vectors)
+    var uncertainty = 1; // variance of bayesian prior of mean
+    var maxIters = 50;
+    GibbsGMM(nbstates, maxIters, uncertainty, observations);
 
 ### Hidden Markov Model (multi-dimensional)
 Model estimation using Baum-Welch (EM with forward-backward steps) algorithm
@@ -36,9 +49,10 @@ Model estimation using Baum-Welch (EM with forward-backward steps) algorithm
     var nbstates = 2;
     var obsdim = 3;
     var hmm1 = new HiddenMarkovModel(nbstates, obsdim);
+    // simulation
     var pathLength = 200;
     var points = hmm1.simulateStates(pathLength, true).observations;
-    //
+    // estimation
     var hmm2 = new HiddenMarkovModel(nbstates, obsdim);
     var maxIters = 50;
     hmm2.fitObservations(points, maxIters, false);
