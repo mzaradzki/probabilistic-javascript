@@ -26,6 +26,7 @@ Javascript functions to fit and to simulate probabilistic models
 * Model estimation using EM (expectation-maximization) algorithm
 * Bayesian sampling of parameters using Gibbs Markov Chain Monte Carlo (MCMC)
 
+
     var nbstates = 2;
     var obsdim = 3;
     var gmm1 = new GaussianMixtureModel(nbstates, obsdim);
