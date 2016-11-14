@@ -23,8 +23,8 @@ Javascript functions to fit and to simulate probabilistic models
     console.log(centers[1]);
 
 ### Gaussian Mixture Model (multi-dimensional)
-Model estimation using EM (expectation-maximization) algorithm
-Bayesian sampling of parameters using Gibss Markov Chain Monte Carlo (MCMC)
+* Model estimation using EM (expectation-maximization) algorithm
+* Bayesian sampling of parameters using Gibbs Markov Chain Monte Carlo (MCMC)
 
     var nbstates = 2;
     var obsdim = 3;
