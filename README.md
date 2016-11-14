@@ -24,27 +24,25 @@ Javascript functions to fit and to simulate probabilistic models
 
 ### Gaussian Mixture Model (multi-dimensional)
 * Model estimation using EM (expectation-maximization) algorithm
+
+        var nbstates = 2;
+        var obsdim = 3;
+        var gmm1 = new GaussianMixtureModel(nbstates, obsdim);
+        // simulation
+        var pathLength = 200;
+        var points = gmm1.simulateStates(pathLength, true).observations;
+        // estimation with EM algorithm
+        var gmm2 = new GaussianMixtureModel(nbstates, obsdim);
+        var maxIters = 50;
+        gmm2.fitObservations(points, maxIters, false);
+
 * Bayesian sampling of parameters using Gibbs Markov Chain Monte Carlo (MCMC)
 
-
-
-    var nbstates = 2;
-    var obsdim = 3;
-    var gmm1 = new GaussianMixtureModel(nbstates, obsdim);
-    // simulation
-    var pathLength = 200;
-    var points = gmm1.simulateStates(pathLength, true).observations;
-    // estimation with EM algorithm
-    var gmm2 = new GaussianMixtureModel(nbstates, obsdim);
-    var maxIters = 50;
-    gmm2.fitObservations(points, maxIters, false);
-
-
-    // bayesian estimation with Gibbs sampling
-    var observations = (some list of vectors)
-    var uncertainty = 1; // variance of bayesian prior of mean
-    var maxIters = 50;
-    GibbsGMM(nbstates, maxIters, uncertainty, observations);
+        // bayesian estimation with Gibbs sampling
+        var observations = (some list of vectors)
+        var uncertainty = 1; // variance of bayesian prior of mean
+        var maxIters = 50;
+        GibbsGMM(nbstates, maxIters, uncertainty, observations);
 
 ### Hidden Markov Model (multi-dimensional)
 Model estimation using Baum-Welch (EM with forward-backward steps) algorithm
