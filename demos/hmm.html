@@ -28,10 +28,10 @@
 		<script type="text/javascript" src="../gmm.js"></script>
 		<script type="text/javascript" src="../hmm.js"></script>
 		<script>
-			// use GMM for convenient data simulation
+			// use a true HMM to generate data
 			var hmm1 = new HiddenMarkovModel(2,2);
 			//
-			hmm1.initialStateDistributionMatrix = [[0.75, 0.25]]; // vector wrapped as matrix for legacy reasons
+			hmm1.initialStateDistributionMatrix = [[0.8, 0.2]]; // vector wrapped as matrix for legacy reasons
 			hmm1.stateTransitionMatrix = [[0.95, 0.05], [0.15, 0.85]];
 			hmm1.observationProbabilityCPDs[0] = new GaussianLaw([2, 4.5], [[0.6*0.6, 0], [0, 1]]);
 			hmm1.observationProbabilityCPDs[1] = new GaussianLaw([4, 2.5], [[0.6*0.6, 0], [0, 0.6*0.6]]);
@@ -39,7 +39,7 @@
 			var truedata = hmm1.simulateStates(200, true);
 			var states = truedata.states;
 			var points = truedata.observations;
-			// estimation
+			// estimation with another HMM object
 			var hmm2 = new HiddenMarkovModel(2,2);
 			hmm2.fitObservations(points, 50, false);
 			var guessA = hmm2.observationProbabilityCPDs[0].means;
@@ -94,7 +94,7 @@
 				    },
 				  	tooltips: {
 				    	callbacks: {
-				      	label: function(tooltipItem) {
+				      		label: function(tooltipItem) {
 					        	//console.log(tooltipItem)
 					        	return tooltipItem.yLabel;
 					        }
@@ -132,7 +132,7 @@
 				    },
 				  	tooltips: {
 				    	callbacks: {
-				      	label: function(tooltipItem) {
+				      		label: function(tooltipItem) {
 					        	//console.log(tooltipItem)
 					        	return tooltipItem.yLabel;
 					        }
