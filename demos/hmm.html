@@ -36,7 +36,9 @@
 			hmm1.observationProbabilityCPDs[0] = new GaussianLaw([2, 4.5], [[0.6*0.6, 0], [0, 1]]);
 			hmm1.observationProbabilityCPDs[1] = new GaussianLaw([4, 2.5], [[0.6*0.6, 0], [0, 0.6*0.6]]);
 			// simulation
-			var points = hmm1.simulateStates(200, true).observations;
+			var truedata = hmm1.simulateStates(200, true);
+			var states = truedata.states;
+			var points = truedata.observations;
 			// estimation
 			var hmm2 = new HiddenMarkovModel(2,2);
 			hmm2.fitObservations(points, 50, false);
@@ -53,15 +55,18 @@
 				<br>
 				<h4>HMM (with gaussian observations) estimation with Baum-Welch algorithm</h4>
 				<div style="width:60%;">
-					<canvas id="myChart"></canvas>
+					<canvas id="myChart1"></canvas>
+				</div>
+				<div style="width:60%;">
+					<canvas id="myChart2"></canvas>
 				</div>
 			</div>
 		</div> <!-- /container -->
 		<script>
-			var ctx = document.getElementById("myChart").getContext("2d");
+			var ctx1 = document.getElementById("myChart1").getContext("2d");
 			var datapoints = [];
 			var backgroundColors = [];
-			for (i=0; i<points.length; i++) {
+			for (var i=0; i<points.length; i++) {
 			    datapoints.push( {x:points[i][0], y:points[i][1], r:5} );
 			    backgroundColors.push('rgba(255, 90, 90, 0.7)');
 			}
@@ -72,7 +77,7 @@
 			datapoints.push( {x:guessB[0], y:guessB[1], r:8} );
 			backgroundColors.push('rgba(50, 255, 50, 1)');
 			//
-			var myChart = new Chart(ctx, {
+			var myChart1 = new Chart(ctx1, {
 			    type: 'bubble',
 			    data: {
 			        datasets: [{
@@ -90,7 +95,7 @@
 				  	tooltips: {
 				    	callbacks: {
 				      	label: function(tooltipItem) {
-					        console.log(tooltipItem)
+					        	//console.log(tooltipItem)
 					        	return tooltipItem.yLabel;
 					        }
 				      	}
@@ -103,6 +108,44 @@
 			            }]
 			        },
 				},
+			});
+		</script>
+		<script>
+			var ctx2 = document.getElementById("myChart2").getContext("2d");
+			var labels = [];
+			for (var i=0; i<states.length; i++) {
+			    labels.push( i );
+			}
+			var myChart2 = new Chart(ctx2, {
+			    type: 'line',
+			    data: {
+			    	labels: labels,
+			        datasets: [{
+			            label: 'HMM',
+			            data: states,
+			        }]
+			    },
+			    /*options: {
+			    	// see : http://stackoverflow.com/questions/37204298/chartjs-v2-hide-dataset-labels
+				    legend: {
+				    	display: false
+				    },
+				  	tooltips: {
+				    	callbacks: {
+				      	label: function(tooltipItem) {
+					        	//console.log(tooltipItem)
+					        	return tooltipItem.yLabel;
+					        }
+				      	}
+				    },
+				    scales: {
+			            yAxes: [{
+			                ticks: {
+			                    beginAtZero:true
+			                }
+			            }]
+			        },
+				},*/
 			});
 		</script>
 	</body>
