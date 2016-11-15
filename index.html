@@ -25,19 +25,88 @@
 		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.3.0/Chart.bundle.min.js"></script>
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/numeric/1.2.6/numeric.js"></script>
+
 	</head>
 	<body>
 		<div class="container">
-			<div>
-				<br>
-				<br>
-				<h2>Probabilitics Models in Javascript</h2>
-				<br>
-				<h4>Winner-Take-All clustering : <a href="demos/wta.html">demo</a></h4>
-				<h4>Gaussian Mixture Model (GMM) fit with EM : demo to be added</h4>
-				<h4>Gaussian Mixture Model (GMM) fit with Gibbs sampling : demo to be added</h4>
-				<h4>Hidden Markov Model (HMM) fit with Baum-Welch : <a href="demos/hmm.html">demo</a></h4>
+			<div class="row">
+				<div class="page-header">
+					<h1>Probabilitics Models in Javascript</h1>
+				</div>
+			</div>
+			<div class="row">
+				<h4>Winner-Take-All clustering</h4>
+				<ul>
+					<li><a href="demos/wta.html">see demo</a></li>
+				</ul>
+				<pre><code>
+					var observations = (some list of vectors)
+					var nbclasses = 2;
+					var lambda = 0.01; // learning rate
+					var nbepochs = 1000;
+					var centers = WinnerTakeAll(observations, nbclasses, lambda, nbepochs);
+					console.log(centers[0]);
+					console.log(centers[1]);
+				</code></pre>
+			</div>
+			<div class="row">
+				<h4>Gaussian Mixture Model (GMM)</h4>
+				<ul>
+					<li>Fit with EM</li>
+					<li>Fit with Gibbs sampling</li>
+					<li>demo to be added</li>
+				</ul>
+				<pre><code>
+					var nbstates = 2;
+					var obsdim = 3;
+					var gmm1 = new GaussianMixtureModel(nbstates, obsdim);
+					// simulation
+					var pathLength = 200;
+					var points = gmm1.simulateStates(pathLength, true).observations;
+					// estimation with EM algorithm
+					var gmm2 = new GaussianMixtureModel(nbstates, obsdim);
+					var maxIters = 50;
+					gmm2.fitObservations(points, maxIters, false);
+				</code></pre>
+				<pre><code>
+					// bayesian estimation with Gibbs sampling
+					var observations = (some list of vectors)
+					var uncertainty = 1; // variance of bayesian prior of mean
+					var maxIters = 50;
+					GibbsGMM(nbstates, maxIters, uncertainty, observations);
+				</code></pre>
+			</div>
+			<div class="row">
+				<h4>Hidden Markov Model (HMM)</h4>
+				<ul>
+					<li>Fit with Baum-Welch EM algorithm</li>
+					<li><a href="demos/hmm.html">demo</a></li>
+				</ul>
+				<pre><code>
+					var nbstates = 2;
+					var obsdim = 3;
+					var hmm1 = new HiddenMarkovModel(nbstates, obsdim);
+					// simulation
+					var pathLength = 200;
+					var points = hmm1.simulateStates(pathLength, true).observations;
+					// estimation
+					var hmm2 = new HiddenMarkovModel(nbstates, obsdim);
+					var maxIters = 50;
+					hmm2.fitObservations(points, maxIters, false);
+					//
+					console.log(hmm2.stateTransitionMatrix);
+					console.log(hmm2.observationProbabilityCPDs[0].means);
+					console.log(hmm2.observationProbabilityCPDs[1].means);
+					console.log(hmm2.observationProbabilityCPDs[2].means);
+				</code></pre>
 			</div>
 		</div> <!-- /container -->
+		<script>
+		$("pre code").each(function(){
+		    var html = $(this).html();
+		    var pattern = html.match(/\s*\n[\t\s]*/);
+		    $(this).html(html.replace(new RegExp(pattern, "g"),'\n'));
+		});
+		</script>
 	</body>
 </html>
