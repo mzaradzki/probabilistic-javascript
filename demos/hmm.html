@@ -42,6 +42,7 @@
 			// estimation with another HMM object
 			var hmm2 = new HiddenMarkovModel(2,2);
 			hmm2.fitObservations(points, 50, false);
+			var stateprobas = hmm2.getStateProbabilityPath(points);
 			var guessA = hmm2.observationProbabilityCPDs[0].means;
 			var guessB = hmm2.observationProbabilityCPDs[1].means;
 			//console.log(guessA);
@@ -66,21 +67,20 @@
 			</div>
 			<div class="row">
 				<h4>HMM with 2 states and 2-d gaussian observations</h4>
-				<div style="width:75%;">
-					<canvas id="myChart2"></canvas>
-				</div>
-			</div>
-			<div class="row">
 				<h4>Estimation with Baum-Welch algorithm</h4>
-				<p>1st chart show data as well as estimated gaussian centers</p>
+				<p>1st chart shows data as well as estimated gaussian centers</p>
 				<div style="width:75%;">
 					<canvas id="myChart1"></canvas>
 				</div>
-				<p>2nd chart shows step-by-step convergence of estimated state transitions (diagonal elements)</p>
+				<p>2nd chart compares simulated (true) state with the estimated state probability</p>
+				<div style="width:75%;">
+					<canvas id="myChart2"></canvas>
+				</div>
+				<p>3rd chart shows step-by-step convergence of estimated state transitions (diagonal elements)</p>
 				<div style="width:75%;">
 					<canvas id="myChart3"></canvas>
 				</div>
-				<p>3rd chart shows step-by-step convergence of estimated gaussian mean coordinates</p>
+				<p>4th chart shows step-by-step convergence of estimated gaussian mean coordinates</p>
 				<div style="width:75%;">
 					<canvas id="myChart4"></canvas>
 				</div>
@@ -147,15 +147,42 @@
             		labels.push( i );
             	}
 			}
+			var lprobas = [];
+			var d0to0 = 0;
+			d0to0+= Math.pow(hmm2.observationProbabilityCPDs[0].means[0]-hmm1.observationProbabilityCPDs[0].means[0],2);
+			d0to0+= Math.pow(hmm2.observationProbabilityCPDs[0].means[1]-hmm1.observationProbabilityCPDs[0].means[1],2);
+			var d1to0 = 0;
+			d1to0+= Math.pow(hmm2.observationProbabilityCPDs[1].means[0]-hmm1.observationProbabilityCPDs[0].means[0],2);
+			d1to0+= Math.pow(hmm2.observationProbabilityCPDs[1].means[1]-hmm1.observationProbabilityCPDs[0].means[1],2);
+			for (var i=0; i<stateprobas.length; i++) {
+            	if (d0to0<d1to0)
+            	{
+            		lprobas.push( 1-stateprobas[i][0] );
+            	}
+            	else
+            	{
+            		lprobas.push( stateprobas[i][0] );
+            	}
+			}
 			var myChart2 = new Chart(ctx2, {
 			    type: 'line',
 			    data: {
 			    	labels: labels,
 			        datasets: [
 				        {
-				            label: 'HMM',
+				            label: 'True',
 				            data: states,
-				        }
+				            backgroundColor: 'rgba(255, 90, 90, 0.3)',
+				            borderColor: 'rgba(255, 90, 90, 0.3)',
+				            fill: true,
+				        },
+				        {
+				            label: 'Estimated',
+				            data: lprobas,
+				            backgroundColor: 'rgba(90, 255, 90, 1)',
+				            borderColor: 'rgba(90, 255, 90, 0.6)',
+				            fill: false,
+				        },
 				    ],
 			    },
 			    /*options: {
