@@ -44,8 +44,10 @@ var HiddenMarkovModel = function(nbstates, obsdim) {
 };
 
 HiddenMarkovModel.prototype.numberOfStates = 0;
-//HiddenMarkovModel.prototype.numberOfObservationSymbols = 0;
 HiddenMarkovModel.prototype.dimensionOfObservations = 0;
+HiddenMarkovModel.prototype.initialStateDistributionMatrix = null;
+HiddenMarkovModel.prototype.stateTransitionMatrix = null;
+HiddenMarkovModel.prototype.observationProbabilityCPDs = null;
 
 /*
 // This is (7) but calculated with log() to prevent underflow.
