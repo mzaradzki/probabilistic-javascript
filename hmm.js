@@ -212,6 +212,33 @@ HiddenMarkovModel.prototype.fitObservations = function(o, maxIters, verbose) {
 };
 
 
+HiddenMarkovModel.prototype.getStateProbabilityPath = function(o) {
+  this._verifyObservations(o);
+
+  var T = o.length;
+  var N = this.numberOfStates;
+
+  var alphaPassResults = this._alphaPass(o);
+  var alpha = alphaPassResults.alpha;
+  var c = alphaPassResults.c;
+  var beta = this._betaPass(c, o);
+  var gammaPassResults = this._gammaPass(alpha, beta, c, o);
+  var gamma = gammaPassResults.gamma;
+  //var digamma = gammaPassResults.digamma;
+
+  var probas = [];
+  for (var t=0; t<T-1; t++) // WARNING : last Gamma is wrong
+  {
+    var vec = [];
+    for (s=0; s<N; s++) {
+      vec.push( gamma[t * N + s] );
+    }
+    probas.push(vec);
+  }
+  //probas.push[[null,null]]; // WARNING : last Gamma is wrong
+  return probas;
+};
+
 /*
 // This finds the dynamic programming solution. See chapter 5.
 HiddenMarkovModel.prototype.getMostProbableStateSequencesOfObservations =
