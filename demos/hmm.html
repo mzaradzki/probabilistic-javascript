@@ -46,21 +46,42 @@
 			var guessB = hmm2.observationProbabilityCPDs[1].means;
 			console.log(guessA);
 			console.log(guessB);
+			// to draw step by step estimation
+			var hmm3 = new HiddenMarkovModel(2,2);
+			var hmms = [];
+			for (var i=0; i<25; i++)
+			{
+				hmm3.fitObservations(points, 1, false);
+				hmms.push( JSON.parse(JSON.stringify(hmm3)) );
+			}
 		</script>
 	</head>
 	<body>
 		<div class="container">
-			<div>
-				<br>
-				<br>
-				<h4>HMM (with gaussian observations) estimation with Baum-Welch algorithm</h4>
-				<div style="width:60%;">
-					<canvas id="myChart1"></canvas>
+		<div class="row"><div class="col-md-10 col-md-offset-1">
+			<div class="row">
+				<div class="page-header">
+					<h1>Hidden Markov Model (HMM) with gaussian observations</h1>
 				</div>
-				<div style="width:60%;">
+			</div>
+			<div class="row">
+				<h4>HMM with 2 states and 2-d gaussian observations</h4>
+				<div style="width:75%;">
 					<canvas id="myChart2"></canvas>
 				</div>
 			</div>
+			<div class="row">
+				<h4>Estimation with Baum-Welch algorithm</h4>
+				<p>1st chart show data as well as estimated gaussian centers</p>
+				<div style="width:75%;">
+					<canvas id="myChart1"></canvas>
+				</div>
+				<p>2nd chart shows step-by-step convergence of estimated state transitions (diagonal elements)</p>
+				<div style="width:75%;">
+					<canvas id="myChart3"></canvas>
+				</div>
+			</div>
+		</div></div>
 		</div> <!-- /container -->
 		<script>
 			var ctx1 = document.getElementById("myChart1").getContext("2d");
@@ -114,7 +135,13 @@
 			var ctx2 = document.getElementById("myChart2").getContext("2d");
 			var labels = [];
 			for (var i=0; i<states.length; i++) {
-			    labels.push( i );
+			    if (i % 5 != 0) {
+                	labels.push( '' );
+            	}
+            	else
+            	{
+            		labels.push( i );
+            	}
 			}
 			var myChart2 = new Chart(ctx2, {
 			    type: 'line',
@@ -146,6 +173,31 @@
 			            }]
 			        },
 				},*/
+			});
+		</script>
+		<script>
+			var ctx3 = document.getElementById("myChart3").getContext("2d");
+			var stindex = [];
+			var stprobs00 = [];
+			var stprobs11 = [];
+			for (var i=0; i<hmms.length; i++) {
+			    stindex.push( i );
+			    stprobs00.push( hmms[i].stateTransitionMatrix[0][0] );
+			    stprobs11.push( hmms[i].stateTransitionMatrix[1][1] );
+			}
+			var myChart3 = new Chart(ctx3, {
+			    type: 'line',
+			    data: {
+			    	labels: stindex,
+			        datasets: [{
+			            label: 'HMM00',
+			            data: stprobs00,
+			        },
+			        {
+			            label: 'HMM11',
+			            data: stprobs11,
+			        }]
+			    },
 			});
 		</script>
 	</body>
