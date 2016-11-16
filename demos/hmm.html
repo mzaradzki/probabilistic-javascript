@@ -44,12 +44,12 @@
 			hmm2.fitObservations(points, 50, false);
 			var guessA = hmm2.observationProbabilityCPDs[0].means;
 			var guessB = hmm2.observationProbabilityCPDs[1].means;
-			console.log(guessA);
-			console.log(guessB);
+			//console.log(guessA);
+			//console.log(guessB);
 			// to draw step by step estimation
 			var hmm3 = new HiddenMarkovModel(2,2);
 			var hmms = [];
-			for (var i=0; i<25; i++)
+			for (var i=0; i<20; i++)
 			{
 				hmm3.fitObservations(points, 1, false);
 				hmms.push( JSON.parse(JSON.stringify(hmm3)) );
@@ -79,6 +79,10 @@
 				<p>2nd chart shows step-by-step convergence of estimated state transitions (diagonal elements)</p>
 				<div style="width:75%;">
 					<canvas id="myChart3"></canvas>
+				</div>
+				<p>3rd chart shows step-by-step convergence of estimated gaussian mean coordinates</p>
+				<div style="width:75%;">
+					<canvas id="myChart4"></canvas>
 				</div>
 			</div>
 		</div></div>
@@ -147,10 +151,12 @@
 			    type: 'line',
 			    data: {
 			    	labels: labels,
-			        datasets: [{
-			            label: 'HMM',
-			            data: states,
-			        }]
+			        datasets: [
+				        {
+				            label: 'HMM',
+				            data: states,
+				        }
+				    ],
 			    },
 			    /*options: {
 			    	// see : http://stackoverflow.com/questions/37204298/chartjs-v2-hide-dataset-labels
@@ -189,14 +195,67 @@
 			    type: 'line',
 			    data: {
 			    	labels: stindex,
-			        datasets: [{
-			            label: 'HMM00',
-			            data: stprobs00,
-			        },
-			        {
-			            label: 'HMM11',
-			            data: stprobs11,
-			        }]
+			        datasets: [
+				        {
+				            label: 'HMM00',
+				            data: stprobs00,
+				        },
+				        {
+				            label: 'HMM11',
+				            data: stprobs11,
+				        }
+				    ],
+			    },
+			});
+		</script>
+		<script>
+			var ctx4 = document.getElementById("myChart4").getContext("2d");
+			var mindex = [];
+			var mean0x = [];
+			var mean0y = [];
+			var mean1x = [];
+			var mean1y = [];
+			for (var i=0; i<hmms.length; i++) {
+			    mindex.push( i );
+			    mean0x.push( hmms[i].observationProbabilityCPDs[0].means[0] );
+			    mean0y.push( hmms[i].observationProbabilityCPDs[0].means[1] );
+			    mean1x.push( hmms[i].observationProbabilityCPDs[1].means[0] );
+			    mean1y.push( hmms[i].observationProbabilityCPDs[1].means[1] );
+			}
+			var myChart4 = new Chart(ctx4, {
+			    type: 'line',
+			    data: {
+			    	labels: mindex,
+			        datasets: [
+				        {
+				            label: 'state(0).X',
+				            data: mean0x,
+				            backgroundColor: 'rgba(255, 90, 90, 1)',
+				            borderColor: 'rgba(255, 90, 90, 0.4)',
+				            fill: false,
+				        },
+				        {
+				            label: 'state(0).Y',
+				            data: mean0y,
+				            backgroundColor: 'rgba(90, 255, 90, 1)',
+				            borderColor: 'rgba(90, 255, 90, 0.4)',
+				            fill: false,
+				        },
+				        {
+				            label: 'state(1).X',
+				            data: mean1x,
+				            backgroundColor: 'rgba(255, 90, 90, 1)',
+				            borderColor: 'rgba(255, 90, 90, 0.4)',
+				            fill: false,
+				        },
+				        {
+				            label: 'state(1).Y',
+				            data: mean1y,
+				            backgroundColor: 'rgba(90, 255, 90, 1)',
+				            borderColor: 'rgba(90, 255, 90, 0.4)',
+				            fill: false,
+				        }
+				    ],
 			    },
 			});
 		</script>
