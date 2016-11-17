@@ -22,7 +22,7 @@ var nbepochs = 1000;
 var centers = WinnerTakeAll(observations, nbclasses, lambda, nbepochs);
 console.log(centers[0]);
 console.log(centers[1]);
-```s
+```
 
 ### Gaussian Mixture Model (multi-dimensional)
 * Model estimation using EM (expectation-maximization) algorithm
