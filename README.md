@@ -28,25 +28,27 @@ console.log(centers[1]);
 ### Gaussian Mixture Model (multi-dimensional)
 * Model estimation using EM (expectation-maximization) algorithm
 
-        var nbstates = 2;
-        var obsdim = 3;
-        var gmm1 = new GaussianMixtureModel(nbstates, obsdim);
-        // simulation
-        var pathLength = 200;
-        var points = gmm1.simulateStates(pathLength, true).observations;
-        // estimation with EM algorithm
-        var gmm2 = new GaussianMixtureModel(nbstates, obsdim);
-        var maxIters = 50;
-        gmm2.fitObservations(points, maxIters, false);
+    ```javascript
+    var nbstates = 2;
+    var obsdim = 3;
+    var gmm1 = new GaussianMixtureModel(nbstates, obsdim);
+    // simulation
+    var pathLength = 200;
+    var points = gmm1.simulateStates(pathLength, true).observations;
+    // estimation with EM algorithm
+    var gmm2 = new GaussianMixtureModel(nbstates, obsdim);
+    var maxIters = 50;
+    gmm2.fitObservations(points, maxIters, false);
+    ```
 
 * Bayesian sampling of parameters using Gibbs Markov Chain Monte Carlo (MCMC)
 
     ```javascript
-        // bayesian estimation with Gibbs sampling
-        var observations = (some list of vectors)
-        var uncertainty = 1; // variance of bayesian prior of mean
-        var maxIters = 50;
-        GibbsGMM(nbstates, maxIters, uncertainty, observations);
+    // bayesian estimation with Gibbs sampling
+    var observations = (some list of vectors)
+    var uncertainty = 1; // variance of bayesian prior of mean
+    var maxIters = 50;
+    GibbsGMM(nbstates, maxIters, uncertainty, observations);
     ```
 
 ### Hidden Markov Model (multi-dimensional)
@@ -73,5 +75,7 @@ console.log(hmm2.observationProbabilityCPDs[2].means);
 ### Dependencies
 Rely on package numeric.js for matrix algebra
 
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/numeric/1.2.6/numeric.js"></script>
+```html
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/numeric/1.2.6/numeric.js"></script>
+```
 
