@@ -142,7 +142,7 @@
                 } // keep checking
             };
 
-            var data = [[1,1,1,0,0,0],
+            /*var data = [[1,1,1,0,0,0],
             [1,0,1,0,0,0],
             [1,1,1,0,0,0],
             [0,0,1,1,1,0],
@@ -163,7 +163,7 @@
                 lr : 0.6,
                 k : 1, // CD-k.
                 epochs : trainingEpochs
-            });
+            });*/
 
             //var v = [[1, 1, 0, 0, 0, 0],[0, 0, 0, 1, 1, 0]];
             //console.log(rbm.reconstruct(v));
@@ -178,22 +178,29 @@
                     <h1>Restricted Boltzmann Machine (RBM)</h1>
                 </div>
                 <h4>Unsupervided learning with bi-partite (visible-hidden) graph</h4>
-                <div id="log"></div>
+                <!--<div id="log"></div>-->
                 <div>
+                    <p>Input to visible unit</p>
                     <img id="imgO" width="112" height="112" />
+                </div>
+                <div>
+                    <p>Reconstructed visible unit</p>
                     <img id="imgR" width="112" height="112" />
+                </div>
+                <div>
+                    <p>Weights of a hidden unit mapped to input units</p>
                     <img id="imgHWs" width="112" height="112" />
                 </div>
             </div>
         </div></div>
         </div> <!-- /container -->
-        <script>
+        <!--<script>
             var v = [[1, 1, 0, 0, 0, 0], [0, 0, 0, 1, 1, 0]];
             document.getElementById('log').innerHTML += 'visible unit: <br/>'
             document.getElementById('log').innerHTML += JSON.stringify(v) + '<br/>'
             document.getElementById('log').innerHTML += JSON.stringify(rbm.reconstruct(v)) + '<br/>'
             document.getElementById('log').innerHTML += 'get hidden layer probabilities from visible unit: <br/>'
             document.getElementById('log').innerHTML += JSON.stringify(rbm.sampleHgivenV(v)[0]) + '<br/>'
-        </script>
+        </script>-->
     </body>
 </html>
