@@ -47,6 +47,7 @@
                     var data_ctx = data_canvas.getContext("2d");
                     data_ctx.drawImage(data_img_elt, 0, 0); // copy it over... bit wasteful :(
                     img_data[batch_num] = data_ctx.getImageData(0, 0, data_canvas.width, data_canvas.height);
+                    // WARNING : the data array length is equal to 4*width*height
                     loaded[batch_num] = true;
                     /*if(batch_num < 20) {
                         loaded_train_batches.push(batch_num);

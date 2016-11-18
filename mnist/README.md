@@ -37,7 +37,7 @@ var p = img_data[b].data;
 var row = 15 // any number from 0 to 2999, each row correspond to a digit image
 var W = 28*28;
 for(var i=0;i<W;i++) {
-  var ix = ((W * k) + i) * 4;
+  var ix = ((W * k) + i) * 4; // WARNING : the data array length is equal to 4*width*height
   p[ix]/255.0;
 }
 ```
