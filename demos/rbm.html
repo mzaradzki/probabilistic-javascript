@@ -110,8 +110,6 @@
                 var imgurlHWs = vec_to_imageurl( h_Ws );
                 //<img src="'+imgurlHWs+'" width=100 />
                 document.getElementById('imgHWs').setAttribute('src', imgurlHWs);
-                //
-                load_and_step();
             };
 
             // int main
@@ -127,7 +125,7 @@
                     console.log('starting!');
                     //
                     data2 = [];
-                    for (var i=0; i<2000; i++) {
+                    for (var i=10; i<2000; i++) {
                         data2.push( mnistitem(1, i) );
                     }
                     rbm2 = new dnn.RBM({
@@ -137,8 +135,7 @@
                     });
                     rbm2.set('log level', 0); // 0 : nothing, 1 : info, 2 : warning.
                     //
-                    //setInterval(load_and_step, 0); // lets go!
-                    load_and_step();
+                    setInterval(load_and_step, 100); // lets go!
                 }
                 else {
                     setTimeout(start_fun, 200);
