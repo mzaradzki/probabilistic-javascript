@@ -108,6 +108,13 @@
             var imgurlR = vec_to_imageurl( rvec );
             //<img src="'+imgurlO+'" width=100 />
             //<img src="'+imgurlR+'" width=100 />
+            var h_Ws = [];
+            var h_index = 10;
+            for (var i=0; i<784; i++) {
+                h_Ws.push( rbm2.W[i][h_index] );
+            }
+            var hWurls = vec_to_imageurl( h_Ws );
+            //<img src="'+hWurls+'" width=100 />
             */
 
             // int main
@@ -152,6 +159,14 @@
                 </div>
                 <h4>Unsupervided learning with bi-partite (visible-hidden) graph</h4>
                 <div id="log"></div>
+                <div style="width:50%;">
+                    <canvas id="mnistO"></canvas>
+                </div>
+                <div style="width:50%;">
+                    <canvas id="mnistR">
+                        <img id="imgR" />
+                    </canvas>
+                </div>
             </div>
         </div></div>
         </div> <!-- /container -->
