@@ -2,7 +2,7 @@
 
 **WARNING** : The file bundled.js in this folder should be generated using **browserify** utility
 
-```
+```shell
 browserify browserified/requirements.js -o browserified/bundled.js
 ```
 
