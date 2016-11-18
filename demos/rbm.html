@@ -85,45 +85,62 @@
                 return numeric.imageURL(rgbs);
             };
 
-            /*
-            var data2 = [];
-            for (var i=10; i<100; i++) {
-                data2.push( mnistitem(1, i) );
-            }
-            var rbm2 = new dnn.RBM({
-                input : data2,
-                n_visible : 28*28,
-                n_hidden : 20
-            });
-            rbm2.train({
-                lr : 0.6,
-                k : 1, // CD-k.
-                epochs : trainingEpochs
-            });
+            var load_and_step = function () {
+                rbm2.train({
+                    lr : 0.6,
+                    k : 1, // CD-k.
+                    epochs : 25 // 25 iteration each step of this function
+                });
 
-            // test by comparing an original image vs a reconstructed image
-            var ovec = data2[10];
-            var imgurlO = vec_to_imageurl( ovec );
-            var rvec = rbm2.reconstruct([ovec,])[0];
-            var imgurlR = vec_to_imageurl( rvec );
-            //<img src="'+imgurlO+'" width=100 />
-            document.getElementById('imgO').setAttribute('src', imgurlO);
-            //<img src="'+imgurlR+'" width=100 />
-            document.getElementById('imgR').setAttribute('src', imgurlR);
-            var h_Ws = [];
-            var h_index = 10;
-            for (var i=0; i<784; i++) {
-                h_Ws.push( rbm2.W[i][h_index] );
-            }
-            var imgurlHWs = vec_to_imageurl( h_Ws );
-            //<img src="'+imgurlHWs+'" width=100 />
-            document.getElementById('imgHWs').setAttribute('src', imgurlHWs);
-            */
+                // test by comparing an original image vs a reconstructed image
+                var ovec = data2[10];
+                var imgurlO = vec_to_imageurl( ovec );
+                var rvec = rbm2.reconstruct([ovec,])[0];
+                var imgurlR = vec_to_imageurl( rvec );
+                //<img src="'+imgurlO+'" width=100 />
+                document.getElementById('imgO').setAttribute('src', imgurlO);
+                //<img src="'+imgurlR+'" width=100 />
+                document.getElementById('imgR').setAttribute('src', imgurlR);
+                //
+                var h_index = 10;
+                var h_Ws = [];
+                for (var i=0; i<784; i++) {
+                    h_Ws.push( rbm2.W[i][h_index] );
+                }
+                var imgurlHWs = vec_to_imageurl( h_Ws );
+                //<img src="'+imgurlHWs+'" width=100 />
+                document.getElementById('imgHWs').setAttribute('src', imgurlHWs);
+            };
 
             // int main
             $(window).load(function() {
                 load_data_batch(1);
+                load_data_batch(5);
+                var data2, rbm2;
+                start_fun();
             });
+
+            var start_fun = function() {
+                if (loaded[1] && loaded[5]) { 
+                    console.log('starting!');
+                    //
+                    data2 = [];
+                    for (var i=10; i<100; i++) {
+                        data2.push( mnistitem(1, i) );
+                    }
+                    rbm2 = new dnn.RBM({
+                        input : data2,
+                        n_visible : 28*28,
+                        n_hidden : 20
+                    });
+                    rbm2.set('log level', 0); // 0 : nothing, 1 : info, 2 : warning.
+                    //
+                    setInterval(load_and_step, 0); // lets go!
+                }
+                else {
+                    setTimeout(start_fun, 200);
+                } // keep checking
+            };
 
             var data = [[1,1,1,0,0,0],
             [1,0,1,0,0,0],
