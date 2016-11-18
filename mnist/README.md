@@ -7,7 +7,7 @@ See : http://cs.stanford.edu/people/karpathy/convnetjs/demo/mnist/
 
 Original source : http://yann.lecun.com/exdb/mnist/
 
-Pytohn script for batch generation with explanation: http://cs.stanford.edu/people/karpathy/convnetjs/demo/mnist.html
+Python script for batch generation with explanation: http://cs.stanford.edu/people/karpathy/convnetjs/demo/mnist.html
 
 
 ```javascript
