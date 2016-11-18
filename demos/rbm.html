@@ -57,11 +57,23 @@
                 data_img_elt.src = "../mnist/mnist_batch_" + batch_num + ".png";
             };
 
+            var mnistitem = function(batch_num, row) {
+                // var batch_num = 1;
+                var p = img_data[batch_num].data;
+                //var row = 15; // any number from 0 to 2999, each row correspond to a digit image
+                var W = 28*28;
+                var vec = [];
+                for(var i=0;i<W;i++) {
+                  var ix = ((W * row) + i) * 4; // WARNING : the data array length is equal to 4*width*height
+                  vec.push( p[ix]/255.0 ); // scale the data
+                }
+                return vec;
+            }
+
             // int main
             $(window).load(function() {
                 load_data_batch(1);
             });
-
 
             var data = [[1,1,1,0,0,0],
             [1,0,1,0,0,0],

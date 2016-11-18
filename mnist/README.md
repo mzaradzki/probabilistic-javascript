@@ -24,7 +24,6 @@ var load_data_batch = function(batch_num) {
     data_ctx.drawImage(data_img_elt, 0, 0); // copy it over... bit wasteful :(
     img_data[batch_num] = data_ctx.getImageData(0, 0, data_canvas.width, data_canvas.height);
     loaded[batch_num] = true;
-    if(batch_num < 20) { loaded_train_batches.push(batch_num); }
     console.log('finished loading data batch ' + batch_num);
   };
   data_img_elt.src = "mnist/mnist_batch_" + batch_num + ".png";
@@ -32,12 +31,13 @@ var load_data_batch = function(batch_num) {
 ```
 
 ```javascript
-// fetch the appropriate row of the training image and reshape into a Vol
-var p = img_data[b].data;
-var row = 15 // any number from 0 to 2999, each row correspond to a digit image
+// fetch the appropriate row of the training image
+var p = img_data[batch_num].data;
+var row = 15; // any number from 0 to 2999, each row correspond to a digit image
 var W = 28*28;
+var vec = [];
 for(var i=0;i<W;i++) {
-  var ix = ((W * k) + i) * 4; // WARNING : the data array length is equal to 4*width*height
-  p[ix]/255.0;
+  var ix = ((W * row) + i) * 4; // WARNING : the data array length is equal to 4*width*height
+  vec.push( p[ix]/255.0 ); // scale the data
 }
 ```
