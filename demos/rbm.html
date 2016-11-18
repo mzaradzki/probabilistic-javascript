@@ -69,6 +69,40 @@
                 }
                 return vec;
             }
+            /*
+            var data2 = [];
+            for (var i=10; i<100; i++) {
+                data2.push( mnistitem(1, i) );
+            }
+            var rbm2 = new dnn.RBM({
+                input : data2,
+                n_visible : 28*28,
+                n_hidden : 20
+            });
+            rbm2.train({
+                lr : 0.6,
+                k : 1, // CD-k.
+                epochs : trainingEpochs
+            });
+            //rbm2.reconstruct([data2[10],]);
+            */
+
+            /*
+            //var g = data2[10];
+            var g = rbm2.reconstruct([data2[10],])[0];
+            var G = [];
+            for (var r=0; r<28; r++)
+            {
+                var row = [];
+                for (var c=0; c<28; c++)
+                {
+                    row.push( g[r*28+c] );
+                }
+                G.push(row);
+            }
+            var imgurl = numeric.imageURL(numeric.mul([G,G,G],254.9)); // collate G 3x for RGB channels
+            //<img src="'+imgurl+'" width=100 />
+            */
 
             // int main
             $(window).load(function() {
