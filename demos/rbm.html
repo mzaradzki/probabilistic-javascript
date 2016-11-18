@@ -68,7 +68,23 @@
                   vec.push( p[ix]/255.0 ); // scale the data
                 }
                 return vec;
-            }
+            };
+
+            var vec_to_imageurl = function (vec28x28) {
+                var G = [];
+                for (var r=0; r<28; r++)
+                {
+                    var row = [];
+                    for (var c=0; c<28; c++)
+                    {
+                        row.push( vec28x28[r*28+c] );
+                    }
+                    G.push(row);
+                }
+                var rgbs = numeric.mul([G,G,G], 254.9); // collate G 3x for RGB channels
+                return numeric.imageURL(rgbs);
+            };
+
             /*
             var data2 = [];
             for (var i=10; i<100; i++) {
@@ -84,24 +100,14 @@
                 k : 1, // CD-k.
                 epochs : trainingEpochs
             });
-            //rbm2.reconstruct([data2[10],]);
-            */
 
-            /*
-            //var g = data2[10];
-            var g = rbm2.reconstruct([data2[10],])[0];
-            var G = [];
-            for (var r=0; r<28; r++)
-            {
-                var row = [];
-                for (var c=0; c<28; c++)
-                {
-                    row.push( g[r*28+c] );
-                }
-                G.push(row);
-            }
-            var imgurl = numeric.imageURL(numeric.mul([G,G,G],254.9)); // collate G 3x for RGB channels
-            //<img src="'+imgurl+'" width=100 />
+            // test by comparing an original image vs a reconstructed image
+            var ovec = data2[10];
+            var imgurlO = vec_to_imageurl( ovec );
+            var rvec = rbm2.reconstruct([ovec,])[0];
+            var imgurlR = vec_to_imageurl( rvec );
+            //<img src="'+imgurlO+'" width=100 />
+            //<img src="'+imgurlR+'" width=100 />
             */
 
             // int main
