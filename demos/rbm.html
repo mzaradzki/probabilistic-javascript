@@ -112,17 +112,12 @@
                 document.getElementById('imgHWs').setAttribute('src', imgurlHWs);
             };
 
-            // int main
-            $(window).load(function() {
-                load_data_batch(1);
-                load_data_batch(5);
-                var data2, rbm2;
-                start_fun();
-            });
-
             var start_fun = function() {
                 if (loaded[1] && loaded[5]) { 
                     console.log('starting!');
+                    //
+                    $('#alert_loading').hide();
+                    $('#alert_loaded').show();
                     //
                     data2 = [];
                     for (var i=10; i<1000; i++) {
@@ -141,6 +136,13 @@
                     setTimeout(start_fun, 200);
                 } // keep checking
             };
+
+            $(window).load(function() {
+                load_data_batch(1);
+                load_data_batch(5);
+                var data2, rbm2;
+                start_fun();
+            });
 
             /*var data = [[1,1,1,0,0,0],
             [1,0,1,0,0,0],
@@ -179,17 +181,23 @@
                 </div>
                 <h4>Unsupervided learning with bi-partite (visible-hidden) graph</h4>
                 <!--<div id="log"></div>-->
-                <div>
-                    <p>Input to visible unit</p>
-                    <img id="imgO" width="112" height="112" />
+                <div id="alert_loading">
+                    <div class="alert alert-warning" role="alert">Loading MNIST data, will take a few seconds ...</div>
                 </div>
-                <div>
-                    <p>Reconstructed visible unit</p>
-                    <img id="imgR" width="112" height="112" />
-                </div>
-                <div>
-                    <p>Weights of a hidden unit mapped to input units</p>
-                    <img id="imgHWs" width="112" height="112" />
+                <div id="alert_loaded" style="display: none;">
+                    <div class="alert alert-success" role="alert">MNIST data loaded</div>
+                    <div>
+                        <p>Input to visible unit</p>
+                        <img id="imgO" width="112" height="112" />
+                    </div>
+                    <div>
+                        <p>Reconstructed visible unit</p>
+                        <img id="imgR" width="112" height="112" />
+                    </div>
+                    <div>
+                        <p>Weights of a hidden unit mapped to input units</p>
+                        <img id="imgHWs" width="112" height="112" />
+                    </div>
                 </div>
             </div>
         </div></div>
