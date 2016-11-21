@@ -28,6 +28,7 @@
         <script type="text/javascript" src="../gmm.js"></script>
         <script type="text/javascript" src="../hmm.js"></script>-->
         <script type="text/javascript" src="../browserified/bundled.js"></script>
+        <script type="text/javascript" src="../mnist/mnist_labels.js"></script>
         <script>
 
             // Original files were compiled into batches for easy browser access by @karpathy.
@@ -92,16 +93,18 @@
                     epochs : 5 // 25 iteration each step of this function
                 });
 
-                // test by comparing an original image vs a reconstructed image
-                var ovec = data2[10];
-                var imgurlO = vec_to_imageurl( ovec );
-                var rvec = rbm2.reconstruct([ovec,])[0];
-                var imgurlR = vec_to_imageurl( rvec );
-                //<img src="'+imgurlO+'" width=100 />
-                document.getElementById('imgO').setAttribute('src', imgurlO);
-                //<img src="'+imgurlR+'" width=100 />
-                document.getElementById('imgR').setAttribute('src', imgurlR);
-                //
+                for (var d=0; d<5; d++) {
+                    // test by comparing an original image vs a reconstructed image
+                    var ovec = data2[d];
+                    var imgurlO = vec_to_imageurl( ovec );
+                    var rvec = rbm2.reconstruct([ovec,])[0];
+                    var imgurlR = vec_to_imageurl( rvec );
+                    //<img src="'+imgurlO+'" width=100 />
+                    document.getElementById('imgO_'+d).setAttribute('src', imgurlO);
+                    //<img src="'+imgurlR+'" width=100 />
+                    document.getElementById('imgR_'+d).setAttribute('src', imgurlR);
+                }
+
                 var h_index = 10;
                 var h_Ws = [];
                 for (var i=0; i<784; i++) {
@@ -188,11 +191,33 @@
                     <div class="alert alert-success" role="alert">MNIST data loaded</div>
                     <div>
                         <p>Input to visible unit</p>
-                        <img id="imgO" width="112" height="112" />
+                        <img id="imgO_0" width="112" height="112" />
+                        <p>Reconstructed visible unit</p>
+                        <img id="imgR_0" width="112" height="112" />
                     </div>
                     <div>
+                        <p>Input to visible unit</p>
+                        <img id="imgO_1" width="112" height="112" />
                         <p>Reconstructed visible unit</p>
-                        <img id="imgR" width="112" height="112" />
+                        <img id="imgR_1" width="112" height="112" />
+                    </div>
+                    <div>
+                        <p>Input to visible unit</p>
+                        <img id="imgO_2" width="112" height="112" />
+                        <p>Reconstructed visible unit</p>
+                        <img id="imgR_2" width="112" height="112" />
+                    </div>
+                    <div>
+                        <p>Input to visible unit</p>
+                        <img id="imgO_3" width="112" height="112" />
+                        <p>Reconstructed visible unit</p>
+                        <img id="imgR_3" width="112" height="112" />
+                    </div>
+                    <div>
+                        <p>Input to visible unit</p>
+                        <img id="imgO_4" width="112" height="112" />
+                        <p>Reconstructed visible unit</p>
+                        <img id="imgR_4" width="112" height="112" />
                     </div>
                     <div>
                         <p>Weights of a hidden unit mapped to input units</p>
