@@ -91,15 +91,18 @@
                     epochs : 10 // 10 iteration each step of this function
                 });
 
-                for (var d=0; d<5; d++) {
+                for (var dgt=0; dgt<5; dgt++) {
                     // test by comparing an original image vs a reconstructed image
-                    var ovec = data2[d];
+                    //var ovec = data2[d];
+                    var offset = Math.floor(Math.random()*1000);
+                    var didx = labels.indexOf(dgt, 5*3000+offset) - 5*3000;
+                    var ovec = mnistitem(5, didx);
                     var imgurlO = vec_to_imageurl( ovec );
                     var rvec = rbm2.reconstruct([ovec,])[0];
                     var imgurlR = vec_to_imageurl( rvec );
                     //console.log(rbm.sampleHgivenV(v)[0]); // WARNING : get hidden layer probabilities from visible unit.
-                    document.getElementById('imgO_'+d).setAttribute('src', imgurlO);
-                    document.getElementById('imgR_'+d).setAttribute('src', imgurlR);
+                    document.getElementById('imgO_'+dgt).setAttribute('src', imgurlO);
+                    document.getElementById('imgR_'+dgt).setAttribute('src', imgurlR);
                 }
 
                 var h_index = 10;
