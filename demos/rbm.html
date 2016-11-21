@@ -91,7 +91,7 @@
                     epochs : 10 // 10 iteration each step of this function
                 });
 
-                for (var dgt=0; dgt<5; dgt++) {
+                for (var dgt=0; dgt<10; dgt++) {
                     // test by comparing an original image vs a reconstructed image
                     //var ovec = data2[d];
                     var offset = Math.floor(Math.random()*1000);
@@ -166,9 +166,9 @@
                     Denoting $\sigma$ the logistic function :<br>
                     $$\sigma\left(x\right)=\frac{1}{1+e^{-x}}$$
                     Conditionaly on all the visible units, the probability of hidden unit $h_{j}$ being active is :<br>
-                    $$p\left(h_{j}=1\right)=\sigma\left(b_{j}+\sum_{i=1}^{n}W_{ij}v_{i}\right)$$
+                    $$p_{V}\left(h_{j}=1\right)=\sigma\left(b_{j}+\sum_{i=1}^{n}W_{ij}v_{i}\right)$$
                     Conditionaly on all the hidden units, the probability of visible unit $v_{i}$ being active is :<br>
-                    $$p\left(v_{i}=1\right)=\sigma\left(a_{i}+\sum_{j=1}^{p}W_{ij}h_{j}\right)$$
+                    $$p_{H}\left(v_{i}=1\right)=\sigma\left(a_{i}+\sum_{j=1}^{p}W_{ij}h_{j}\right)$$
                 </div>
                 <div id="alert_loading">
                     <div class="alert alert-warning" role="alert">Loading MNIST data, will take a few seconds ...</div>
@@ -181,8 +181,12 @@
                     <div>
                         <table>
                             <tr>
-                                <th>Input to visible unit&nbsp;&nbsp;&nbsp;</th>
-                                <th>Reconstructed visible unit</th>
+                                <th>Input to visible unit&nbsp;&nbsp;</th>
+                                <th>Reconstructed visible unit&nbsp;&nbsp;</th>
+                                <th>Input to visible unit&nbsp;&nbsp;</th>
+                                <th>Reconstructed visible unit&nbsp;&nbsp;</th>
+                                <th>Input to visible unit&nbsp;&nbsp;</th>
+                                <th>Reconstructed visible unit&nbsp;&nbsp;</th>
                             </tr>
                             <tr>
                                 <td><img id="imgO_0" width="112" height="112" /></td>
@@ -192,21 +196,28 @@
                             <tr>
                                 <td><img id="imgO_1" width="112" height="112" /></td>
                                 <td><img id="imgR_1" width="112" height="112" /></td>
+                                <td><img id="imgO_4" width="112" height="112" /></td>
+                                <td><img id="imgR_4" width="112" height="112" /></td>
+                                <td><img id="imgO_7" width="112" height="112" /></td>
+                                <td><img id="imgR_7" width="112" height="112" /></td>
                             </tr>
                             <tr><td>&nbsp;</td><td>&nbsp;</td></tr>
                             <tr>
                                 <td><img id="imgO_2" width="112" height="112" /></td>
                                 <td><img id="imgR_2" width="112" height="112" /></td>
+                                <td><img id="imgO_5" width="112" height="112" /></td>
+                                <td><img id="imgR_5" width="112" height="112" /></td>
+                                <td><img id="imgO_8" width="112" height="112" /></td>
+                                <td><img id="imgR_8" width="112" height="112" /></td>
                             </tr>
                             <tr><td>&nbsp;</td><td>&nbsp;</td></tr>
                             <tr>
                                 <td><img id="imgO_3" width="112" height="112" /></td>
                                 <td><img id="imgR_3" width="112" height="112" /></td>
-                            </tr>
-                            <tr><td>&nbsp;</td><td>&nbsp;</td></tr>
-                            <tr>
-                                <td><img id="imgO_4" width="112" height="112" /></td>
-                                <td><img id="imgR_4" width="112" height="112" /></td>
+                                <td><img id="imgO_6" width="112" height="112" /></td>
+                                <td><img id="imgR_6" width="112" height="112" /></td>
+                                <td><img id="imgO_9" width="112" height="112" /></td>
+                                <td><img id="imgR_9" width="112" height="112" /></td>
                             </tr>
                         </table>
                     </div>
