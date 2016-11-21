@@ -90,7 +90,7 @@
                 rbm2.train({
                     lr : 0.6,
                     k : 1, // CD-k.
-                    epochs : 5 // 25 iteration each step of this function
+                    epochs : 10 // 10 iteration each step of this function
                 });
 
                 for (var d=0; d<5; d++) {
@@ -99,9 +99,8 @@
                     var imgurlO = vec_to_imageurl( ovec );
                     var rvec = rbm2.reconstruct([ovec,])[0];
                     var imgurlR = vec_to_imageurl( rvec );
-                    //<img src="'+imgurlO+'" width=100 />
+                    //console.log(rbm.sampleHgivenV(v)[0]); // WARNING : get hidden layer probabilities from visible unit.
                     document.getElementById('imgO_'+d).setAttribute('src', imgurlO);
-                    //<img src="'+imgurlR+'" width=100 />
                     document.getElementById('imgR_'+d).setAttribute('src', imgurlR);
                 }
 
@@ -111,7 +110,6 @@
                     h_Ws.push( rbm2.W[i][h_index] );
                 }
                 var imgurlHWs = vec_to_imageurl( h_Ws );
-                //<img src="'+imgurlHWs+'" width=100 />
                 document.getElementById('imgHWs').setAttribute('src', imgurlHWs);
             };
 
@@ -123,7 +121,7 @@
                     $('#alert_loaded').show();
                     //
                     data2 = [];
-                    for (var i=10; i<1000; i++) {
+                    for (var i=10; i<500; i++) {
                         data2.push( mnistitem(1, i) );
                     }
                     rbm2 = new dnn.RBM({
@@ -133,11 +131,11 @@
                     });
                     rbm2.set('log level', 0); // 0 : nothing, 1 : info, 2 : warning.
                     //
-                    setInterval(load_and_step, 0); // lets go!
+                    setInterval(load_and_step, 0); // get started
                 }
                 else {
-                    setTimeout(start_fun, 200);
-                } // keep checking
+                    setTimeout(start_fun, 200); // check again in a bit
+                }
             };
 
             $(window).load(function() {
@@ -146,33 +144,7 @@
                 var data2, rbm2;
                 start_fun();
             });
-
-            /*var data = [[1,1,1,0,0,0],
-            [1,0,1,0,0,0],
-            [1,1,1,0,0,0],
-            [0,0,1,1,1,0],
-            [0,0,1,1,0,0],
-            [0,0,1,1,1,0]];
- 
-            var rbm = new dnn.RBM({
-                input : data,
-                n_visible : 6,
-                n_hidden : 2
-            });
             
-            rbm.set('log level', 0); // 0 : nothing, 1 : info, 2 : warning.
-             
-            var trainingEpochs = 500;
-             
-            rbm.train({
-                lr : 0.6,
-                k : 1, // CD-k.
-                epochs : trainingEpochs
-            });*/
-
-            //var v = [[1, 1, 0, 0, 0, 0],[0, 0, 0, 1, 1, 0]];
-            //console.log(rbm.reconstruct(v));
-            //console.log(rbm.sampleHgivenV(v)[0]); // get hidden layer probabilities from visible unit.
         </script>
     </head>
     <body>
@@ -221,14 +193,6 @@
                             </tr>
                         </table>
                     </div>
-                    <!--
-                    <div>
-                        <p>Input to visible unit</p>
-                        <img id="imgO_4" width="112" height="112" />
-                        <p>Reconstructed visible unit</p>
-                        <img id="imgR_4" width="112" height="112" />
-                    </div>
-                    -->
                     <div>
                         <p>Weights of a hidden unit mapped to input units</p>
                         <img id="imgHWs" width="112" height="112" />
