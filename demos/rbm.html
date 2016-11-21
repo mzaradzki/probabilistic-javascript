@@ -12,9 +12,9 @@
         <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
 
         <script type="text/x-mathjax-config">
-        MathJax.Hub.Config({
-          tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
-        });
+            MathJax.Hub.Config({
+              tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+            });
         </script>
         <script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script>
         <!--<p>
@@ -156,7 +156,20 @@
                     <h1>Restricted Boltzmann Machine (RBM)</h1>
                 </div>
                 <h4>Unsupervided learning with bi-partite (visible-hidden) graph</h4>
-                <!--<div id="log"></div>-->
+                <div style="display: visible;">
+                    A binary-states Boltzmann Machine is a graph of whose nodes are (on/off) random variables with activation probability, conditionally on their relatives, that are logistic functions.<br>
+                    In a Restricted Boltzmann Machine, the nodes can be split in 2 sets (denoted $V$ and $H$) such that $V$ nodes can only be connected to $H$ nodes, and conversely.<br>
+                    This implies that conditionally on $V$, two nodes from the $H$ set, say $h1$ and $h2$, are independent from each other.<br>
+                    <br>
+                    In the context of machine learning, the two sets are denoted $V$ and $H$ as one will encode Visible inputs and the other will encode Hidden features.<br>
+                    <br>
+                    Denoting $\sigma$ the logistic function :<br>
+                    $$\sigma\left(x\right)=\frac{1}{1+e^{-x}}$$
+                    Conditionaly on all the visible units, the probability of hidden unit $h_{j}$ being active is :<br>
+                    $$p\left(h_{j}=1\right)=\sigma\left(b_{j}+\sum_{i=1}^{n}W_{ij}v_{i}\right)$$
+                    Conditionaly on all the hidden units, the probability of visible unit $v_{i}$ being active is :<br>
+                    $$p\left(v_{i}=1\right)=\sigma\left(a_{i}+\sum_{j=1}^{p}W_{ij}h_{j}\right)$$
+                </div>
                 <div id="alert_loading">
                     <div class="alert alert-warning" role="alert">Loading MNIST data, will take a few seconds ...</div>
                 </div>
