@@ -154,7 +154,11 @@
                     Formally, the hidden state chain $\left(s_{t}\right)$ is defined by an initial probability distribution vector $\Pi_{0}$ and a transition matrix $M$ such that:
                     $$\Pi_{t}=M.\Pi_{t-1}$$
                     In our case we assume that the N observation law are gaussian vectors determined by their mean vector and covariance matrices:
-                    $$O\left(s_{t}\right)\thicksim N\left(\mu_{s_{t}},\Omega_{s_{t}}\right)$$<br>
+                    $$O\left(s_{t}\right)\thicksim N\left(\mu_{s_{t}},\Omega_{s_{t}}\right)$$
+                    <br>
+                    The graph structure shows that conditionaly on the state sequence the observations are independant. Furthermore each single observations depends solely on the state at the same time-step. Thus we have:
+                    $$P\left(O_{1},\ldots,O_{T}\mid s_{1},\ldots,s_{T}\right)=\prod_{k=1}^{T}P\left(O_{k}\mid s_{k}\right)$$
+                    As a result, if we know the probability distribution of the state sequence we can perform the Maximization step of the EM algorithm the same way we do it for the Gaussiam Mixture Model. Fortunately the Baum-Welch backward-forward procedure allows us to compute the probability of the state at each step.
                 </div>
             </div>
             <div class="row">
