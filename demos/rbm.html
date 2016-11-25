@@ -121,8 +121,8 @@
                 if (loaded[1] && loaded[5]) { 
                     console.log('starting!');
                     //
-                    $('#alert_loading').hide();
-                    $('#alert_loaded').show();
+                    $('.loading').hide();
+                    $('.loaded').show();
                     //
                     data2 = [];
                     for (var i=10; i<500; i++) {
@@ -235,6 +235,15 @@
                     <h1>Restricted Boltzmann Machine (RBM)</h1>
                     <h2><small>M.ZARADZKI - 2016</small></h2>
                 </div>
+                <div class="loading">
+                    <div class="alert alert-warning" role="alert">Loading MNIST data, will take a few seconds ...</div>
+                </div>
+                <div class="loaded" style="display: none;">
+                    <div class="alert alert-success" role="alert">
+                        MNIST data loaded<br>
+                        Note that your browser may freeze as the RBM learns from the image set
+                    </div>
+                </div>
                 <h4>Unsupervided learning with bi-partite (visible-hidden) graph</h4>
                 <div style="display: visible;">
                     A binary-states Boltzmann Machine is a graph of whose nodes are (on/off) random variables with activation probability, conditionally on their relatives, that are logistic functions.<br>
@@ -252,14 +261,7 @@
                     Conditionaly on all the hidden units, the probability of visible unit $v_{i}$ being active is :<br>
                     $$p_{H}\left(v_{i}=1\right)=\sigma\left(a_{i}+\sum_{j=1}^{p}W_{ij}h_{j}\right)$$
                 </div>
-                <div id="alert_loading">
-                    <div class="alert alert-warning" role="alert">Loading MNIST data, will take a few seconds ...</div>
-                </div>
-                <div id="alert_loaded" style="display: none;">
-                    <div class="alert alert-success" role="alert">
-                        MNIST data loaded<br>
-                        Note that your browser may freeze as the RBM learns from the image set
-                    </div>
+                <div class="loaded" style="display: none;">
                     <div>
                         <table>
                             <tr>
