@@ -87,11 +87,11 @@
                 var connectionCount = [];
 
                 for (var i = 0; i < 8; i++) {
-                    nodes.push({id: i, label: 'V'+(i+1), color: 'pink'});
+                    nodes.push({id: i, label: 'O'+(i+1), color: 'pink'});
                     nodes[i]["level"] = 0;
                 }
                 for (var j = 8; j < 16; j++) {
-                    nodes.push({id: j, label: 'H'+(j+1-8), color: 'lime'});
+                    nodes.push({id: j, label: 's'+(j+1-8), color: 'lime'});
                     nodes[j]["level"] = 1;
                 }
                 for (var j = 8+1; j < 16; j++) {
@@ -147,12 +147,14 @@
                 <div>
                     In a Hidden Markov Model with N states, each (hidden) state is associated to an emission law, the state evolve according to a markov chain, and at each time step the (visible) observation is drawn from the current state emission law.<br>
                     <br>
-                    Denoting (h) and hidden-state sequence and (v) the visible-observation sequence we get the following graphical representation:<br>
+                    Denoting $\left(s_{t}\right)$ the hidden-state sequence, and $\left(O_{t}\right)$ the visible-observation sequence we get the following graphical representation:<br>
                     <br>
                     <div id="mynetwork" class="center-block"></div>
                     <br>
-                    Formally, the hidden state chain is defined by an initial probability distribution vector pi(0) and a transition matrix M such that pi(t+1)=M.pi(t).<br>
-                    In our case we assume that the N observation law are gaussian vectors determined by their mean vector and covariance matrices.<br>
+                    Formally, the hidden state chain $\left(s_{t}\right)$ is defined by an initial probability distribution vector $\Pi_{0}$ and a transition matrix $M$ such that:
+                    $$\Pi_{t}=M.\Pi_{t-1}$$
+                    In our case we assume that the N observation law are gaussian vectors determined by their mean vector and covariance matrices:
+                    $$O\left(s_{t}\right)\thicksim N\left(\mu_{s_{t}},\Omega_{s_{t}}\right)$$<br>
                 </div>
             </div>
             <div class="row">
