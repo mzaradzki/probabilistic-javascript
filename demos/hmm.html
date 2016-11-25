@@ -95,10 +95,10 @@
                     nodes[j]["level"] = 1;
                 }
                 for (var j = 8+1; j < 16; j++) {
-                    edges.push({from: j-1, to: j, color:{color:'grey'}});
+                    edges.push({from: j-1, to: j, arrows:'to', color:{color:'grey'}});
                 }
                 for (var j = 8; j < 16; j++) {
-                    edges.push({from: j, to: j-8, color:{color:'grey'}});
+                    edges.push({from: j, to: j-8, arrows:'to', color:{color:'grey'}});
                 }
 
                 // create a network
@@ -158,12 +158,29 @@
                     <br>
                     The graph structure shows that conditionaly on the state sequence the observations are independant. Furthermore each single observations depends solely on the state at the same time-step. Thus we have:
                     $$P\left(O_{1},\ldots,O_{T}\mid s_{1},\ldots,s_{T}\right)=\prod_{k=1}^{T}P\left(O_{k}\mid s_{k}\right)$$
-                    As a result, if we know the probability distribution of the state sequence we can perform the Maximization step of the EM algorithm the same way we do it for the Gaussiam Mixture Model. Fortunately the Baum-Welch backward-forward procedure allows us to compute the probability of the state at each step.
+                    As a result, if we know the probability distribution of the state sequence we can perform the Maximization step of the EM algorithm the same way we do it for the Gaussiam Mixture Model. Fortunately the Baum-Welch backward-forward procedure allows us to compute the probability of the state at each time step.<br>
+                    <br>
+                    <h4>Estimation with Baum-Welch algorithm</h4>
+                    <b>Forward pass (adapted from Wikipedia)</b><br>
+                    Let $\alpha_{i}(t)=P(O_{1}=o_{1},...,O_{t}=o_{t},s_{t}=i|\theta)$ i.e. the <b>joint</b> probability of observing $o_{1},o_{2},...,o_{t}$ and having $s_{t}=i$.<br>
+                    By forward recursion:
+                    $$\alpha_{i}(1)=\pi_{i} g_{i}(o_{1})$$
+                    $$\alpha_{j}(t+1)=g_{j}(o_{t+1})\sum_{i=1}^{N}\alpha_{i}(t)m_{ij}$$
+                    <b>Backward pass (adapted from Wikipedia)</b><br>
+                    Let $\beta_{i}(t)=P(O_{t+1}=o_{t+1},...,O_{T}=o_{T}|s_{t}=i,\theta)$ i.e. the <b>conditional</b> probability of observing $o_{t+1},...,o_{T}$ given $s_{t}=i$.<br>
+                    By backward recursion:
+                    $$\beta_{i}(T)=1$$
+                    $$\beta_{i}(t)=\sum_{j=1}^{N}\beta_{j}(t+1)m_{ij} g_{j}(o_{t+1})$$
+                    <b>Expected state dynamic (adapted from Wikipedia)</b><br>
+                    Probability of being in state $s_{t}=i$ given the observed sequence $O$ and the parameters $\theta$:
+                    $$\gamma_{i}(t)=P(s_{t}=i|O,\theta)=\frac{\alpha_{i}(t)\beta_{i}(t)}{\sum_{j=1}^{N}\alpha_{j}(t)\beta_{j}(t)}$$
+                    Probability of being in state $s_{t}=i$ and $s_{t+1}=j$ given the observed sequence $O$ and parameters $\theta$:
+                    $$\xi_{ij}(t)=P(s_{t}=i,s_{t+1}=j|O,\theta)={\frac{\alpha_{i}(t)m_{ij}\beta_{j}(t+1) g_{j}(o_{t+1})}{\sum_{i=1}^{N}\sum_{j=1}^{N}\alpha_{i}(t)m_{ij}\beta_{j}(t+1) g_{j}(o_{t+1})}}$$
+                    <br>
                 </div>
             </div>
             <div class="row">
-                <h4>HMM with 2 states and 2-d gaussian observations</h4>
-                <h4>Estimation with Baum-Welch algorithm</h4>
+                <h4>Example: HMM with 2 states and 2-d gaussian observations</h4>
                 <p>1st chart shows data as well as estimated gaussian centers</p>
                 <div style="width:75%;" class="center-block">
                     <canvas id="myChart1"></canvas>
