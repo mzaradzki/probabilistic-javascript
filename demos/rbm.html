@@ -267,7 +267,14 @@
                 <div class="loaded" style="display: none;">
                     <h4>Example: RBM training on MNIST images</h4>
                     A training sample of 3000 MNIST images (28x28) is used to train an RBM with 20 hidden units.<br>
-                    As training progress, at each iteration, we randomly extract 10 images from a testing sample and compare them with there reconstruction from the model.
+                    As training progress, at each iteration, we randomly extract 10 images from a testing sample and compare them with there reconstruction from the model.<br>
+                    <br>
+                    <div class="btn-group" role="group" aria-label="...">
+                        <button type="button" class="btn btn-info" onclick="isrunning=true;">Run</button>
+                        <button type="button" class="btn btn-danger" onclick="isrunning=false;">Pause</button>
+                    </div>
+                    <br>
+                    <br>
                     <div>
                         <table>
                             <tr>
