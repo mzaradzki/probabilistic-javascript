@@ -38,7 +38,7 @@
             // Original files were compiled into batches for easy browser access by @karpathy.
             // See : http://cs.stanford.edu/people/karpathy/convnetjs/demo/mnist/
             // Load the dataset with JS in background
-            var data_img_elts = [null, null, null, null, null, null];
+            /*var data_img_elts = [null, null, null, null, null, null];
             var img_data = [null, null, null, null, null];
             var loaded = [null, null, null, null, null];
             var load_data_batch = function(batch_num) {
@@ -54,9 +54,6 @@
                     img_data[batch_num] = data_ctx.getImageData(0, 0, data_canvas.width, data_canvas.height);
                     // WARNING : the data array length is equal to 4*width*height
                     loaded[batch_num] = true;
-                    /*if(batch_num < 20) {
-                        loaded_train_batches.push(batch_num);
-                    }*/
                     console.log('finished loading data batch ' + batch_num);
                 };
                 data_img_elt.src = "../mnist/mnist_batch_" + batch_num + ".png";
@@ -73,7 +70,9 @@
                   vec.push( p[ix]/255.0 ); // scale the data
                 }
                 return vec;
-            };
+            };*/
+
+            var mnist = new MNIST("../mnist");
 
             var vec_to_imageurl = function (vec28x28) {
                 var G = [];
@@ -104,7 +103,7 @@
                         //var ovec = data2[d];
                         var offset = Math.floor(Math.random()*1000);
                         var didx = labels.indexOf(dgt, 5*3000+offset) - 5*3000;
-                        var ovec = mnistitem(5, didx);
+                        var ovec = mnist.mnistitem(5, didx);
                         var imgurlO = vec_to_imageurl( ovec );
                         var rvec = rbm2.reconstruct([ovec,])[0];
                         var imgurlR = vec_to_imageurl( rvec );
@@ -132,7 +131,7 @@
                     //
                     data2 = [];
                     for (var i=10; i<500; i++) {
-                        data2.push( mnistitem(1, i) );
+                        data2.push( mnist.mnistitem(1, i) );
                     }
                     rbm2 = new dnn.RBM({
                         input : data2,
@@ -149,8 +148,8 @@
             };
 
             $(window).load(function() {
-                load_data_batch(1);
-                load_data_batch(5);
+                mnist.load_data_batch(1);
+                mnist.load_data_batch(5);
                 var data2, rbm2;
                 start_fun();
             });
