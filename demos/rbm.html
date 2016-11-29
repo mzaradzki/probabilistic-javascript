@@ -87,34 +87,37 @@
                 return numeric.imageURL(rgbs);
             };
 
+            var isrunning = false;
             var load_and_step = function () {
-                rbm2.train({
-                    lr : 0.6,
-                    k : 1, // CD-k.
-                    epochs : 10 // 10 iteration each step of this function
-                });
+                if (isrunning) {
+                    rbm2.train({
+                        lr : 0.6,
+                        k : 1, // CD-k.
+                        epochs : 10 // 10 iteration each step of this function
+                    });
 
-                for (var dgt=0; dgt<10; dgt++) {
-                    // test by comparing an original image vs a reconstructed image
-                    //var ovec = data2[d];
-                    var offset = Math.floor(Math.random()*1000);
-                    var didx = labels.indexOf(dgt, 5*3000+offset) - 5*3000;
-                    var ovec = mnistitem(5, didx);
-                    var imgurlO = vec_to_imageurl( ovec );
-                    var rvec = rbm2.reconstruct([ovec,])[0];
-                    var imgurlR = vec_to_imageurl( rvec );
-                    //console.log(rbm.sampleHgivenV(v)[0]); // WARNING : get hidden layer probabilities from visible unit.
-                    document.getElementById('imgO_'+dgt).setAttribute('src', imgurlO);
-                    document.getElementById('imgR_'+dgt).setAttribute('src', imgurlR);
-                }
+                    for (var dgt=0; dgt<10; dgt++) {
+                        // test by comparing an original image vs a reconstructed image
+                        //var ovec = data2[d];
+                        var offset = Math.floor(Math.random()*1000);
+                        var didx = labels.indexOf(dgt, 5*3000+offset) - 5*3000;
+                        var ovec = mnistitem(5, didx);
+                        var imgurlO = vec_to_imageurl( ovec );
+                        var rvec = rbm2.reconstruct([ovec,])[0];
+                        var imgurlR = vec_to_imageurl( rvec );
+                        //console.log(rbm.sampleHgivenV(v)[0]); // WARNING : get hidden layer probabilities from visible unit.
+                        document.getElementById('imgO_'+dgt).setAttribute('src', imgurlO);
+                        document.getElementById('imgR_'+dgt).setAttribute('src', imgurlR);
+                    }
 
-                var h_index = 10;
-                var h_Ws = [];
-                for (var i=0; i<784; i++) {
-                    h_Ws.push( rbm2.W[i][h_index] );
+                    var h_index = 10;
+                    var h_Ws = [];
+                    for (var i=0; i<784; i++) {
+                        h_Ws.push( rbm2.W[i][h_index] );
+                    }
+                    var imgurlHWs = vec_to_imageurl( h_Ws );
+                    document.getElementById('imgHWs').setAttribute('src', imgurlHWs);
                 }
-                var imgurlHWs = vec_to_imageurl( h_Ws );
-                document.getElementById('imgHWs').setAttribute('src', imgurlHWs);
             };
 
             var start_fun = function() {
@@ -262,6 +265,9 @@
                     $$p_{H}\left(v_{i}=1\right)=\sigma\left(a_{i}+\sum_{j=1}^{p}W_{ij}h_{j}\right)$$
                 </div>
                 <div class="loaded" style="display: none;">
+                    <h4>Example: RBM training on MNIST images</h4>
+                    A training sample of 3000 MNIST images (28x28) is used to train an RBM with 20 hidden units.<br>
+                    As training progress, at each iteration, we randomly extract 10 images from a testing sample and compare them with there reconstruction from the model.
                     <div>
                         <table>
                             <tr>
