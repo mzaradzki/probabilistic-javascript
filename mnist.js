@@ -25,7 +25,7 @@ MNIST.prototype.loaded = [];
 
 MNIST.prototype.load_data_batch = function(batch_num, verbose) {
   this.data_img_elts[batch_num] = new Image();
-  var data_img_elt = data_img_elts[batch_num];
+  var data_img_elt = this.data_img_elts[batch_num];
   data_img_elt.onload = function() { 
     //var data_canvas = document.getElementById('datacanvas');
     var data_canvas = document.createElement('canvas');
