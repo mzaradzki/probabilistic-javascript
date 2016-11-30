@@ -30,7 +30,10 @@
 		<script type="text/javascript" src="../winnertakeall.js"></script>
 		<script type="text/javascript" src="../gmm.js"></script>
 		<script type="text/javascript" src="../hmm.js"></script>
-		<script>
+		<script type="text/javascript" src="../mnist.js"></script>
+        <script type="text/javascript" src="../mnist/mnist_labels.js"></script>
+
+        <script>
 			// use GMM for convenient data simulation
 			var gmm = new GaussianMixtureModel(2,2);
 			//
@@ -45,11 +48,84 @@
 			var guessB = guesses[1];
 			console.log(guessA);
 			console.log(guessB);
-			/*
-			console.log("start of EM");
-			var gmm = new GaussianMixtureModel(2,2);
-			gmm.fitObservations(points, 25);
-			*/
+		</script>
+
+		<script>
+			var mnist = new MNIST("../mnist");
+
+            var vec_to_imageurl = function (vec28x28) {
+                var G = [];
+                for (var r=0; r<28; r++)
+                {
+                    var row = [];
+                    for (var c=0; c<28; c++)
+                    {
+                        row.push( vec28x28[r*28+c] );
+                    }
+                    G.push(row);
+                }
+                var rgbs = numeric.mul([G,G,G], 254.9); // collate G 3x for RGB channels
+                return numeric.imageURL(rgbs);
+            };
+
+			var isrunning = false;
+			var nbclasses = 20;
+            var load_and_step = function () {
+                if (isrunning) {
+                    for (var dgt=0; dgt<10; dgt++) {
+                        var offset = Math.floor(Math.random()*1000);
+                        var didx = labels.indexOf(dgt, 5*3000+offset) - 5*3000;
+                        var ovec = mnist.mnistitem(5, didx);
+                        var imgurlO = vec_to_imageurl( ovec );
+                        //
+                        var bestclass;
+					    var bestdelta;
+					    var bestnorm2 = -1;
+					    for (var c=0; c<nbclasses; c++) {
+					      	var delta = numeric.sub(ovec, wtadigits[c]);
+					      	var norm2 = numeric.norm2Squared(delta);
+					      	if ((c==0) || (norm2<bestnorm2)) {
+					        	bestclass = c;
+					        	bestdelta = delta;
+					        	bestnorm2 = norm2;
+					      	}
+					    }
+                        var imgurlR = vec_to_imageurl( wtadigits[bestclass] );
+                        //
+                        document.getElementById('imgO_'+dgt).setAttribute('src', imgurlO);
+                        document.getElementById('imgR_'+dgt).setAttribute('src', imgurlR);
+                    }
+                }
+            };
+
+            var start_fun = function() {
+                if (mnist.loaded[1] && mnist.loaded[5]) { 
+                    console.log('starting!');
+                    //
+                    $('.loading').hide();
+                    $('.loaded').show();
+                    //
+                    data2 = [];
+                    for (var i=10; i<2000; i++) {
+                        data2.push( mnist.mnistitem(1, i) );
+                    }
+                    //
+                    wtadigits = WinnerTakeAll(data2, nbclasses, 0.01, 25000);
+                    isrunning = true;
+                    //load_and_step();
+                    setInterval(load_and_step, 1000); // get started
+                }
+                else {
+                    setTimeout(start_fun, 200); // check again in a bit
+                }
+            };
+
+            $(window).load(function() {
+                mnist.load_data_batch(1);
+                mnist.load_data_batch(5);
+                var data2, wtadigits;
+                start_fun();
+            });
 		</script>
 	</head>
 	<body>
@@ -61,9 +137,75 @@
 				</div>
 			</div>
 			<div class="row">
-				<div style="width:75%;">
+				<div>
+					<h4>Principle: unsupervised learning</h4>
+                    We iterate over a population of vector to identify (at each step) the closest "winner" among a trained set of representative vectors.<br>
+                    In the following chart we sample a 2d Gaussian Mixture with 2 components, then we "forgot" the simulated mixture states applied the WTA algorithm to estimate the center of the 2 components.<br>
+                    <br>
+				</div>
+				<div style="width:75%;" class="center-block">
 					<canvas id="myChart"></canvas>
 				</div>
+				<br>
+				<br>
+			</div>
+			<div class="row">
+				<div>
+					<h4>Example: Winner Take All training on MNIST images</h4>
+                    A training sample of 3000 MNIST images (28x28) is used to train a WTA with 20 representative vectors.<br>
+                    The training is done over 25000 iterations in one single loop.<br>
+                    Once training is complete we cycle over a testing sample to extract (randomly at each iteration) 10 images and compare them with there closest match among the WTA vectors.<br>
+                    <br>
+                    <div class="btn-group" role="group" aria-label="...">
+                        <button type="button" class="btn btn-info" onclick="isrunning=true;">Run</button>
+                        <button type="button" class="btn btn-danger" onclick="isrunning=false;">Pause</button>
+                    </div>
+                    <br>
+                    <br>
+				</div>
+				<div>
+                    <table>
+                        <tr>
+                            <th>Real digit image vector&nbsp;&nbsp;</th>
+                            <th>Closest matching vector&nbsp;&nbsp;</th>
+                            <th>Real digit image vector&nbsp;&nbsp;</th>
+                            <th>Closest matching vector&nbsp;&nbsp;</th>
+                            <th>Real digit image vector&nbsp;&nbsp;</th>
+                            <th>Closest matching vector&nbsp;&nbsp;</th>
+                        </tr>
+                        <tr>
+                            <td><img id="imgO_0" width="112" height="112" /></td>
+                            <td><img id="imgR_0" width="112" height="112" /></td>
+                        </tr>
+                        <tr><td>&nbsp;</td><td>&nbsp;</td></tr>
+                        <tr>
+                            <td><img id="imgO_1" width="112" height="112" /></td>
+                            <td><img id="imgR_1" width="112" height="112" /></td>
+                            <td><img id="imgO_4" width="112" height="112" /></td>
+                            <td><img id="imgR_4" width="112" height="112" /></td>
+                            <td><img id="imgO_7" width="112" height="112" /></td>
+                            <td><img id="imgR_7" width="112" height="112" /></td>
+                        </tr>
+                        <tr><td>&nbsp;</td><td>&nbsp;</td></tr>
+                        <tr>
+                            <td><img id="imgO_2" width="112" height="112" /></td>
+                            <td><img id="imgR_2" width="112" height="112" /></td>
+                            <td><img id="imgO_5" width="112" height="112" /></td>
+                            <td><img id="imgR_5" width="112" height="112" /></td>
+                            <td><img id="imgO_8" width="112" height="112" /></td>
+                            <td><img id="imgR_8" width="112" height="112" /></td>
+                        </tr>
+                        <tr><td>&nbsp;</td><td>&nbsp;</td></tr>
+                        <tr>
+                            <td><img id="imgO_3" width="112" height="112" /></td>
+                            <td><img id="imgR_3" width="112" height="112" /></td>
+                            <td><img id="imgO_6" width="112" height="112" /></td>
+                            <td><img id="imgR_6" width="112" height="112" /></td>
+                            <td><img id="imgO_9" width="112" height="112" /></td>
+                            <td><img id="imgR_9" width="112" height="112" /></td>
+                        </tr>
+                    </table>
+                </div>
 			</div>
 		</div></div>
 		</div> <!-- /container -->
