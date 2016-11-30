@@ -46,7 +46,7 @@
                 if (quandlToDoMonikers.length>0)
                 {
                     $('.loading').show();
-                    var qsource = quandlToDoMonikers.pop(0);
+                    var qsource = quandlToDoMonikers.shift(); // like pop but from head
                     $('#moniker').html(qsource);
                     //https://www.quandl.com/api/v3/datasets/CBOE/VIX.json?column_index=4&start_date=2007-01-01&end_date=2013-12-31&api_key=7z5QQwMszmxPmfCpJ6c4
                     $.ajax({
