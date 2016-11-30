@@ -40,7 +40,7 @@
             //var hmm4 = new HiddenMarkovModel(2,6);
             // hmm4.fitObservations(mktXs, 1, false);
 
-            var quandlToDoMonikers = ['YAHOO/INDEX_SPY', 'YAHOO/XLK', 'YAHOO/XLF', 'YAHOO/XLE'];
+            var quandlToDoMonikers = ['YAHOO/INDEX_SPY', 'YAHOO/XLK', 'YAHOO/XLF', 'YAHOO/XLE', 'YAHOO/XLV'];
             var quandlDoneMonikers = [];
             var quandlKey = '7z5QQwMszmxPmfCpJ6c4';
 
@@ -58,13 +58,17 @@
                     });
                     quandlDoneMonikers.push(qsource);
                 }
+                else {
+                    $('.loaded').show();
+                }
             }
 
             function processData(allText) {
                 //alert('csv data loaded');
                 var qds = JSON.parse(allText).dataset;
-                alert(qds['dataset_code'] + ' : ' + qds['data'].length);
+                console.log(qds['dataset_code'] + ' : ' + qds['data'].length);
                 marketdata[qds['dataset_code']] = qds['data'];
+                $('#'+qds['dataset_code']).hide();
                 /*marketdata = csvParser(allText);
                 mktXs = [];
                 for (var t=0; t<marketdata['Date'].length; t++) {
@@ -90,6 +94,24 @@
                 <div class="page-header">
                     <h1>Hidden Markov Model (HMM) with gaussian observations</h1>
                     <h2><small>M.ZARADZKI - 2016</small></h2>
+                </div>
+                <div id="INDEX_SPY" class="loading">
+                    <div class="alert alert-warning" role="alert">Loading <strong>SPX</strong> data on Quandl ...</div>
+                </div>
+                <div id="XLE" class="loading">
+                    <div class="alert alert-warning" role="alert">Loading <strong>XLE</strong> data on Quandl ...</div>
+                </div>
+                <div id="XLF" class="loading">
+                    <div class="alert alert-warning" role="alert">Loading <strong>XLF</strong> data on Quandl ...</div>
+                </div>
+                <div id="XLK" class="loading">
+                    <div class="alert alert-warning" role="alert">Loading <strong>XLK</strong> data on Quandl ...</div>
+                </div>
+                <div id="XLV" class="loading">
+                    <div class="alert alert-warning" role="alert">Loading <strong>XLV</strong> data on Quandl ...</div>
+                </div>
+                <div class="loaded" style="display: none;">
+                    <div class="alert alert-success" role="alert">All market data was loaded</div>
                 </div>
             </div>
             <div class="row">
