@@ -32,21 +32,23 @@
         <script type="text/javascript" src="../winnertakeall.js"></script>
         <script type="text/javascript" src="../gmm.js"></script>
         <script type="text/javascript" src="../hmm.js"></script>
-        
-        <script type="text/javascript" src="js/csvparser.js"></script>
+
         <script>
             var marketdata = {};
             var mktMatrix = [];
             var hmm;
 
-            var quandlToDoMonikers = ['YAHOO/INDEX_SPY', 'YAHOO/XLK', 'YAHOO/XLF', 'YAHOO/XLE', 'YAHOO/XLV'];
+            var quandlToDoMonikers = ['YAHOO/INDEX_SPY', 'YAHOO/XLK', 'YAHOO/XLI', 'YAHOO/XLE', 'YAHOO/XLV', 'CBOE/VIX'];
             var quandlDoneMonikers = [];
             var quandlKey = '7z5QQwMszmxPmfCpJ6c4';
 
             function quandlQ() {
                 if (quandlToDoMonikers.length>0)
                 {
+                    $('.loading').show();
                     var qsource = quandlToDoMonikers.pop(0);
+                    $('#moniker').html(qsource);
+                    //https://www.quandl.com/api/v3/datasets/CBOE/VIX.json?column_index=4&start_date=2007-01-01&end_date=2013-12-31&api_key=7z5QQwMszmxPmfCpJ6c4
                     $.ajax({
                         type: 'GET',
                         url: 'https://www.quandl.com/api/v3/datasets/'+qsource+'.json?order=asc&column_index=4&start_date=2007-01-01&end_date=2013-12-31&api_key='+quandlKey,
@@ -58,6 +60,7 @@
                     quandlDoneMonikers.push(qsource);
                 }
                 else {
+                    $('.loading').hide();
                     $('.loaded').show();
                     processAllData();
                     hmm = new HiddenMarkovModel(2, mktMatrix[0].length);
@@ -69,20 +72,25 @@
                 var qds = JSON.parse(allText).dataset;
                 console.log(qds['dataset_code'] + ' : ' + qds['data'].length);
                 marketdata[qds['dataset_code']] = qds['data'];
-                $('#'+qds['dataset_code']).hide();
+                //$('#'+qds['dataset_code']).hide();
                 quandlQ();
             }
 
             function processAllData() {
                 var data = { AllDates:[], GoodDates:[] };
                 var allkeys = Object.keys(marketdata);
+                //var allkeys = ['VIX'];
                 for (var c=0; c<allkeys.length; c++) {
                     var cname = allkeys[c];
                     var column = marketdata[cname];
                     data[cname] = {};
                     for (var t=0; t<column.length; t++) {
                         var dt = column[t][0];
-                        data[cname][dt] = column[t][1];
+                        var vl = column[t][1];
+                        if (vl<=0) {
+                            alert('wrong data');
+                        }
+                        data[cname][dt] = vl;
                         if (data.AllDates.indexOf(dt)<0) {
                             data.AllDates.push(dt);
                         }
@@ -110,7 +118,13 @@
                         var cname = allkeys[c];
                         var val1 = data[cname][dt1];
                         var val2 = data[cname][dt2];
-                        row.push( Math.log(val1/val2)*100 );
+                        if (!(cname=='VIX')) {
+                            row.push( Math.log(val2/val1)*100 );
+                        }
+                        else {
+                            row.push( val2 - 0.98*val1 );
+                        }
+                        
                     }
                     mktMatrix.push( row );
                 }
@@ -129,20 +143,8 @@
                     <h1>Hidden Markov Model (HMM) with gaussian observations</h1>
                     <h2><small>M.ZARADZKI - 2016</small></h2>
                 </div>
-                <div id="INDEX_SPY" class="loading">
-                    <div class="alert alert-warning" role="alert">Loading <strong>SPX</strong> data on Quandl ...</div>
-                </div>
-                <div id="XLE" class="loading">
-                    <div class="alert alert-warning" role="alert">Loading <strong>XLE</strong> data on Quandl ...</div>
-                </div>
-                <div id="XLF" class="loading">
-                    <div class="alert alert-warning" role="alert">Loading <strong>XLF</strong> data on Quandl ...</div>
-                </div>
-                <div id="XLK" class="loading">
-                    <div class="alert alert-warning" role="alert">Loading <strong>XLK</strong> data on Quandl ...</div>
-                </div>
-                <div id="XLV" class="loading">
-                    <div class="alert alert-warning" role="alert">Loading <strong>XLV</strong> data on Quandl ...</div>
+                <div class="loading" style="display: none;">
+                    <div class="alert alert-warning" role="alert">Loading <strong id="moniker">moniker</strong> data on Quandl ...</div>
                 </div>
                 <div class="loaded" style="display: none;">
                     <div class="alert alert-success" role="alert">All market data was loaded</div>
