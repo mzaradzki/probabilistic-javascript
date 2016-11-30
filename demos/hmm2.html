@@ -68,8 +68,10 @@
             var hmm4 = new HiddenMarkovModel(2,6);
             // hmm4.fitObservations(mktXs, 1, false);
             function processData(allText) {
-                alert('csv data loaded');
-                marketdata = csvParser(allText);
+                //alert('csv data loaded');
+                var qds = JSON.parse(allText).dataset;
+                alert(qds['dataset_code'] + ' : ' + qds['data'].length);
+                /*marketdata = csvParser(allText);
                 mktXs = [];
                 for (var t=0; t<marketdata['Date'].length; t++) {
                     mktXs.push( [   marketdata['NETMKT'][t],
@@ -78,17 +80,21 @@
                                     marketdata['DXLI'][t],
                                     marketdata['DXLE'][t],
                                     marketdata['DXLF'][t]] );
-                }
+                }*/
             }
             $(document).ready(function() {
-                $.ajax({
-                    type: "GET",
-                    url: "data/data_spdr_sectors.csv",
-                    dataType: "text",
-                    success: function(allText) {
-                        processData(allText);
-                    }
-                });
+                var sources = ['YAHOO/INDEX_SPY', 'YAHOO/XLK', 'YAHOO/XLF', 'YAHOO/XLE'];
+                for (var i=0; i<sources.length; i++)
+                {
+                    $.ajax({
+                        type: 'GET',
+                        url: 'https://www.quandl.com/api/v3/datasets/'+sources[i]+'.json?order=asc&column_index=4&start_date=2007-01-01&end_date=2013-12-31&api_key=7z5QQwMszmxPmfCpJ6c4',
+                        dataType: 'text',
+                        success: function(allText) {
+                            processData(allText);
+                        }
+                    });
+                }
             });
         </script>
     </head>
