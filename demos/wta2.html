@@ -53,15 +53,32 @@
 			gmm.fitObservations(points, 25);
 			*/
 
-			var data2;
+			var mnist = new MNIST("../mnist");
+
+            var vec_to_imageurl = function (vec28x28) {
+                var G = [];
+                for (var r=0; r<28; r++)
+                {
+                    var row = [];
+                    for (var c=0; c<28; c++)
+                    {
+                        row.push( vec28x28[r*28+c] );
+                    }
+                    G.push(row);
+                }
+                var rgbs = numeric.mul([G,G,G], 254.9); // collate G 3x for RGB channels
+                return numeric.imageURL(rgbs);
+            };
+
+			//var data2;
 			var isrunning = false;
             var load_and_step = function () {
                 if (isrunning) {
-                    rbm2.train({
+                    /*rbm2.train({
                         lr : 0.6,
                         k : 1, // CD-k.
                         epochs : 10 // 10 iteration each step of this function
-                    });
+                    });*/
 
                     for (var dgt=0; dgt<10; dgt++) {
                         // test by comparing an original image vs a reconstructed image
@@ -70,11 +87,11 @@
                         var didx = labels.indexOf(dgt, 5*3000+offset) - 5*3000;
                         var ovec = mnist.mnistitem(5, didx);
                         var imgurlO = vec_to_imageurl( ovec );
-                        var rvec = rbm2.reconstruct([ovec,])[0];
-                        var imgurlR = vec_to_imageurl( rvec );
+                        //var rvec = rbm2.reconstruct([ovec,])[0];
+                        //var imgurlR = vec_to_imageurl( rvec );
                         //console.log(rbm.sampleHgivenV(v)[0]); // WARNING : get hidden layer probabilities from visible unit.
                         document.getElementById('imgO_'+dgt).setAttribute('src', imgurlO);
-                        document.getElementById('imgR_'+dgt).setAttribute('src', imgurlR);
+                        //document.getElementById('imgR_'+dgt).setAttribute('src', imgurlR);
                     }
 
                     var h_index = 10;
@@ -88,18 +105,18 @@
             };
 
             var start_fun = function() {
-                if (mnist.loaded[1]) { 
+                if (mnist.loaded[1] && mnist.loaded[5]) { 
                     console.log('starting!');
                     //
                     $('.loading').hide();
                     $('.loaded').show();
                     //
                     data2 = [];
-                    for (var i=10; i<500; i++) {
+                    for (var i=10; i<2000; i++) {
                         data2.push( mnist.mnistitem(1, i) );
                     }
                     //
-                    guesses = WinnerTakeAll(data2, 10, 0.01, 100);
+                    guesses = WinnerTakeAll(data2, 10, 0.01, 2500);
                     //setInterval(load_and_step, 0); // get started
                 }
                 else {
@@ -109,7 +126,8 @@
 
             $(window).load(function() {
                 mnist.load_data_batch(1);
-                var data2, rbm2;
+                mnist.load_data_batch(5);
+                var data2;
                 start_fun();
             });
 		</script>
@@ -126,6 +144,49 @@
 				<div style="width:75%;">
 					<canvas id="myChart"></canvas>
 				</div>
+				<div>
+                    <table>
+                        <tr>
+                            <th>Input to visible unit&nbsp;&nbsp;</th>
+                            <th>Reconstructed visible unit&nbsp;&nbsp;</th>
+                            <th>Input to visible unit&nbsp;&nbsp;</th>
+                            <th>Reconstructed visible unit&nbsp;&nbsp;</th>
+                            <th>Input to visible unit&nbsp;&nbsp;</th>
+                            <th>Reconstructed visible unit&nbsp;&nbsp;</th>
+                        </tr>
+                        <tr>
+                            <td><img id="imgO_0" width="112" height="112" /></td>
+                            <td><img id="imgR_0" width="112" height="112" /></td>
+                        </tr>
+                        <tr><td>&nbsp;</td><td>&nbsp;</td></tr>
+                        <tr>
+                            <td><img id="imgO_1" width="112" height="112" /></td>
+                            <td><img id="imgR_1" width="112" height="112" /></td>
+                            <td><img id="imgO_4" width="112" height="112" /></td>
+                            <td><img id="imgR_4" width="112" height="112" /></td>
+                            <td><img id="imgO_7" width="112" height="112" /></td>
+                            <td><img id="imgR_7" width="112" height="112" /></td>
+                        </tr>
+                        <tr><td>&nbsp;</td><td>&nbsp;</td></tr>
+                        <tr>
+                            <td><img id="imgO_2" width="112" height="112" /></td>
+                            <td><img id="imgR_2" width="112" height="112" /></td>
+                            <td><img id="imgO_5" width="112" height="112" /></td>
+                            <td><img id="imgR_5" width="112" height="112" /></td>
+                            <td><img id="imgO_8" width="112" height="112" /></td>
+                            <td><img id="imgR_8" width="112" height="112" /></td>
+                        </tr>
+                        <tr><td>&nbsp;</td><td>&nbsp;</td></tr>
+                        <tr>
+                            <td><img id="imgO_3" width="112" height="112" /></td>
+                            <td><img id="imgR_3" width="112" height="112" /></td>
+                            <td><img id="imgO_6" width="112" height="112" /></td>
+                            <td><img id="imgR_6" width="112" height="112" /></td>
+                            <td><img id="imgO_9" width="112" height="112" /></td>
+                            <td><img id="imgR_9" width="112" height="112" /></td>
+                        </tr>
+                    </table>
+                </div>
 			</div>
 		</div></div>
 		</div> <!-- /container -->
