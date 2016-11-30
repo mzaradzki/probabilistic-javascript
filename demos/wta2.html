@@ -32,27 +32,8 @@
 		<script type="text/javascript" src="../hmm.js"></script>
 		<script type="text/javascript" src="../mnist.js"></script>
         <script type="text/javascript" src="../mnist/mnist_labels.js"></script>
-		<script>
-			// use GMM for convenient data simulation
-			var gmm = new GaussianMixtureModel(2,2);
-			//
-			gmm.stateDistribution = [0.5, 0.5];
-			gmm.observationProbabilityCPDs[0] = new GaussianLaw([2, 4.5], [[0.6*0.6, 0], [0, 1]]);
-			gmm.observationProbabilityCPDs[1] = new GaussianLaw([4, 2.5], [[0.6*0.6, 0], [0, 0.6*0.6]]);
-			// simulation
-			var points = gmm.simulateStates(200, true).observations;
-			// estimation
-			var guesses = WinnerTakeAll(points,2, 0.01, 1000);
-			var guessA = guesses[0];
-			var guessB = guesses[1];
-			console.log(guessA);
-			console.log(guessB);
-			/*
-			console.log("start of EM");
-			var gmm = new GaussianMixtureModel(2,2);
-			gmm.fitObservations(points, 25);
-			*/
 
+		<script>
 			var mnist = new MNIST("../mnist");
 
             var vec_to_imageurl = function (vec28x28) {
@@ -72,6 +53,7 @@
 
 			//var data2;
 			var isrunning = false;
+			var nbclasses = 20;
             var load_and_step = function () {
                 if (isrunning) {
                     /*rbm2.train({
@@ -87,20 +69,34 @@
                         var didx = labels.indexOf(dgt, 5*3000+offset) - 5*3000;
                         var ovec = mnist.mnistitem(5, didx);
                         var imgurlO = vec_to_imageurl( ovec );
+                        //
+                        var bestclass;
+					    var bestdelta;
+					    var bestnorm2 = -1;
+					    for (var c=0; c<nbclasses; c++) {
+					      	var delta = numeric.sub(ovec, guesses[c]);
+					      	var norm2 = numeric.dot(delta, delta);
+					      	if ((c==0) || (norm2<bestnorm2)) {
+					        	bestclass = c;
+					        	bestdelta = delta;
+					        	bestnorm2 = norm2;
+					      	}
+					    }
+                        var imgurlR = vec_to_imageurl( guesses[bestclass] )
                         //var rvec = rbm2.reconstruct([ovec,])[0];
                         //var imgurlR = vec_to_imageurl( rvec );
                         //console.log(rbm.sampleHgivenV(v)[0]); // WARNING : get hidden layer probabilities from visible unit.
                         document.getElementById('imgO_'+dgt).setAttribute('src', imgurlO);
-                        //document.getElementById('imgR_'+dgt).setAttribute('src', imgurlR);
+                        document.getElementById('imgR_'+dgt).setAttribute('src', imgurlR);
                     }
 
-                    var h_index = 10;
+                    /*var h_index = 10;
                     var h_Ws = [];
                     for (var i=0; i<784; i++) {
                         h_Ws.push( rbm2.W[i][h_index] );
                     }
                     var imgurlHWs = vec_to_imageurl( h_Ws );
-                    document.getElementById('imgHWs').setAttribute('src', imgurlHWs);
+                    document.getElementById('imgHWs').setAttribute('src', imgurlHWs);*/
                 }
             };
 
@@ -116,8 +112,10 @@
                         data2.push( mnist.mnistitem(1, i) );
                     }
                     //
-                    guesses = WinnerTakeAll(data2, 10, 0.01, 2500);
-                    //setInterval(load_and_step, 0); // get started
+                    guesses = WinnerTakeAll(data2, nbclasses, 0.01, 25000);
+                    isrunning = true;
+                    //load_and_step();
+                    setInterval(load_and_step, 0); // get started
                 }
                 else {
                     setTimeout(start_fun, 200); // check again in a bit
@@ -127,7 +125,7 @@
             $(window).load(function() {
                 mnist.load_data_batch(1);
                 mnist.load_data_batch(5);
-                var data2;
+                var data2, guesses;
                 start_fun();
             });
 		</script>
@@ -141,8 +139,16 @@
 				</div>
 			</div>
 			<div class="row">
-				<div style="width:75%;">
-					<canvas id="myChart"></canvas>
+				<div>
+                    <div class="btn-group" role="group" aria-label="...">
+                        <button type="button" class="btn btn-info" onclick="isrunning=true;">Run</button>
+                        <button type="button" class="btn btn-danger" onclick="isrunning=false;">Pause</button>
+                    </div>
+                    <br>
+                    <br>
+                    <div class="alert alert-warning" role="alert">
+                        Note that your browser may freeze as the RBM learns from the image set
+                    </div>
 				</div>
 				<div>
                     <table>
@@ -190,53 +196,5 @@
 			</div>
 		</div></div>
 		</div> <!-- /container -->
-		<script>
-			var ctx = document.getElementById("myChart").getContext("2d");
-			var datapoints = [];
-			var backgroundColors = [];
-			for (i=0; i<points.length; i++) {
-			    datapoints.push( {x:points[i][0], y:points[i][1], r:5} );
-			    backgroundColors.push('rgba(255, 90, 90, 0.7)');
-			}
-			//
-			datapoints.push( {x:guessA[0], y:guessA[1], r:8} );
-			backgroundColors.push('rgba(50, 255, 50, 1)');
-			//
-			datapoints.push( {x:guessB[0], y:guessB[1], r:8} );
-			backgroundColors.push('rgba(50, 255, 50, 1)');
-			//
-			var myChart = new Chart(ctx, {
-			    type: 'bubble',
-			    data: {
-			        datasets: [{
-			            label: 'Winner-Take-All',
-			            data: datapoints,
-			            backgroundColor:backgroundColors, //"#FF6384",
-			            hoverBackgroundColor: "#FF6384",
-			        }]
-			    },
-			    options: {
-			    	// see : http://stackoverflow.com/questions/37204298/chartjs-v2-hide-dataset-labels
-				    legend: {
-				    	display: false
-				    },
-				  	tooltips: {
-				    	callbacks: {
-				      		label: function(tooltipItem) {
-					        	//console.log(tooltipItem)
-					        	return tooltipItem.yLabel;
-					        }
-				      	}
-				    },
-				    scales: {
-			            yAxes: [{
-			                ticks: {
-			                    beginAtZero:true
-			                }
-			            }]
-			        },
-				},
-			});
-		</script>
 	</body>
 </html>
