@@ -32,45 +32,39 @@
         <script type="text/javascript" src="../winnertakeall.js"></script>
         <script type="text/javascript" src="../gmm.js"></script>
         <script type="text/javascript" src="../hmm.js"></script>
-        <script>
-            // use a true HMM to generate data
-            var hmm1 = new HiddenMarkovModel(2,2);
-            //
-            hmm1.initialStateDistributionMatrix = [[0.8, 0.2]]; // vector wrapped as matrix for legacy reasons
-            hmm1.stateTransitionMatrix = [[0.95, 0.05], [0.15, 0.85]];
-            hmm1.observationProbabilityCPDs[0] = new GaussianLaw([2, 4.5], [[0.6*0.6, 0], [0, 1]]);
-            hmm1.observationProbabilityCPDs[1] = new GaussianLaw([4, 2.5], [[0.6*0.6, 0], [0, 0.6*0.6]]);
-            // simulation
-            var truedata = hmm1.simulateStates(200, true);
-            var states = truedata.states;
-            var points = truedata.observations;
-            // estimation with another HMM object
-            var hmm2 = new HiddenMarkovModel(2,2);
-            hmm2.fitObservations(points, 50, false);
-            var stateprobas = hmm2.getStateProbabilityPath(points);
-            var guessA = hmm2.observationProbabilityCPDs[0].means;
-            var guessB = hmm2.observationProbabilityCPDs[1].means;
-            //console.log(guessA);
-            //console.log(guessB);
-            // to draw step by step estimation
-            var hmm3 = new HiddenMarkovModel(2,2);
-            var hmms = [];
-            for (var i=0; i<20; i++)
-            {
-                hmm3.fitObservations(points, 1, false);
-                hmms.push( JSON.parse(JSON.stringify(hmm3)) );
-            }
-        </script>
+        
         <script type="text/javascript" src="js/csvparser.js"></script>
         <script>
-            var marketdata;
-            var mktXs;
-            var hmm4 = new HiddenMarkovModel(2,6);
+            var marketdata = {};
+            //var mktXs;
+            //var hmm4 = new HiddenMarkovModel(2,6);
             // hmm4.fitObservations(mktXs, 1, false);
+
+            var quandlToDoMonikers = ['YAHOO/INDEX_SPY', 'YAHOO/XLK', 'YAHOO/XLF', 'YAHOO/XLE'];
+            var quandlDoneMonikers = [];
+            var quandlKey = '7z5QQwMszmxPmfCpJ6c4';
+
+            function quandlQ() {
+                if (quandlToDoMonikers.length>0)
+                {
+                    var qsource = quandlToDoMonikers.pop(0);
+                    $.ajax({
+                        type: 'GET',
+                        url: 'https://www.quandl.com/api/v3/datasets/'+qsource+'.json?order=asc&column_index=4&start_date=2007-01-01&end_date=2013-12-31&api_key='+quandlKey,
+                        dataType: 'text',
+                        success: function(allText) {
+                            processData(allText);
+                        }
+                    });
+                    quandlDoneMonikers.push(qsource);
+                }
+            }
+
             function processData(allText) {
                 //alert('csv data loaded');
                 var qds = JSON.parse(allText).dataset;
                 alert(qds['dataset_code'] + ' : ' + qds['data'].length);
+                marketdata[qds['dataset_code']] = qds['data'];
                 /*marketdata = csvParser(allText);
                 mktXs = [];
                 for (var t=0; t<marketdata['Date'].length; t++) {
@@ -81,20 +75,11 @@
                                     marketdata['DXLE'][t],
                                     marketdata['DXLF'][t]] );
                 }*/
+                quandlQ();
             }
+
             $(document).ready(function() {
-                var sources = ['YAHOO/INDEX_SPY', 'YAHOO/XLK', 'YAHOO/XLF', 'YAHOO/XLE'];
-                for (var i=0; i<sources.length; i++)
-                {
-                    $.ajax({
-                        type: 'GET',
-                        url: 'https://www.quandl.com/api/v3/datasets/'+sources[i]+'.json?order=asc&column_index=4&start_date=2007-01-01&end_date=2013-12-31&api_key=7z5QQwMszmxPmfCpJ6c4',
-                        dataType: 'text',
-                        success: function(allText) {
-                            processData(allText);
-                        }
-                    });
-                }
+                quandlQ();
             });
         </script>
     </head>
@@ -128,204 +113,5 @@
             </div>
         </div></div>
         </div> <!-- /container -->
-        <script>
-            var ctx1 = document.getElementById("myChart1").getContext("2d");
-            var datapoints = [];
-            var backgroundColors = [];
-            for (var i=0; i<points.length; i++) {
-                datapoints.push( {x:points[i][0], y:points[i][1], r:5} );
-                backgroundColors.push('rgba(255, 90, 90, 0.7)');
-            }
-            //
-            datapoints.push( {x:guessA[0], y:guessA[1], r:8} );
-            backgroundColors.push('rgba(50, 255, 50, 1)');
-            //
-            datapoints.push( {x:guessB[0], y:guessB[1], r:8} );
-            backgroundColors.push('rgba(50, 255, 50, 1)');
-            //
-            var myChart1 = new Chart(ctx1, {
-                type: 'bubble',
-                data: {
-                    datasets: [{
-                        label: 'HMM',
-                        data: datapoints,
-                        backgroundColor:backgroundColors, //"#FF6384",
-                        hoverBackgroundColor: "#FF6384",
-                    }]
-                },
-                options: {
-                    // see : http://stackoverflow.com/questions/37204298/chartjs-v2-hide-dataset-labels
-                    legend: {
-                        display: false
-                    },
-                    tooltips: {
-                        callbacks: {
-                            label: function(tooltipItem) {
-                                //console.log(tooltipItem)
-                                return tooltipItem.yLabel;
-                            }
-                        }
-                    },
-                    scales: {
-                        yAxes: [{
-                            ticks: {
-                                beginAtZero:true
-                            }
-                        }]
-                    },
-                },
-            });
-        </script>
-        <script>
-            var ctx2 = document.getElementById("myChart2").getContext("2d");
-            var labels = [];
-            for (var i=0; i<states.length; i++) {
-                if (i % 5 != 0) {
-                    labels.push( '' );
-                }
-                else
-                {
-                    labels.push( i );
-                }
-            }
-            var lprobas = [];
-            var d0to0 = 0;
-            d0to0+= Math.pow(hmm2.observationProbabilityCPDs[0].means[0]-hmm1.observationProbabilityCPDs[0].means[0],2);
-            d0to0+= Math.pow(hmm2.observationProbabilityCPDs[0].means[1]-hmm1.observationProbabilityCPDs[0].means[1],2);
-            var d1to0 = 0;
-            d1to0+= Math.pow(hmm2.observationProbabilityCPDs[1].means[0]-hmm1.observationProbabilityCPDs[0].means[0],2);
-            d1to0+= Math.pow(hmm2.observationProbabilityCPDs[1].means[1]-hmm1.observationProbabilityCPDs[0].means[1],2);
-            for (var i=0; i<stateprobas.length; i++) {
-                if (d0to0<d1to0)
-                {
-                    lprobas.push( 1-stateprobas[i][0] );
-                }
-                else
-                {
-                    lprobas.push( stateprobas[i][0] );
-                }
-            }
-            var myChart2 = new Chart(ctx2, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: 'True',
-                            data: states,
-                            backgroundColor: 'rgba(255, 90, 90, 0.3)',
-                            borderColor: 'rgba(255, 90, 90, 0.3)',
-                            fill: true,
-                        },
-                        {
-                            label: 'Estimated',
-                            data: lprobas,
-                            backgroundColor: 'rgba(90, 255, 90, 1)',
-                            borderColor: 'rgba(90, 255, 90, 0.6)',
-                            fill: false,
-                        },
-                    ],
-                },
-                /*options: {
-                    // see : http://stackoverflow.com/questions/37204298/chartjs-v2-hide-dataset-labels
-                    legend: {
-                        display: false
-                    },
-                    tooltips: {
-                        callbacks: {
-                            label: function(tooltipItem) {
-                                //console.log(tooltipItem)
-                                return tooltipItem.yLabel;
-                            }
-                        }
-                    },
-                    scales: {
-                        yAxes: [{
-                            ticks: {
-                                beginAtZero:true
-                            }
-                        }]
-                    },
-                },*/
-            });
-        </script>
-        <script>
-            var ctx3 = document.getElementById("myChart3").getContext("2d");
-            var stindex = [];
-            var stprobs00 = [];
-            var stprobs11 = [];
-            for (var i=0; i<hmms.length; i++) {
-                stindex.push( i );
-                stprobs00.push( hmms[i].stateTransitionMatrix[0][0] );
-                stprobs11.push( hmms[i].stateTransitionMatrix[1][1] );
-            }
-            var myChart3 = new Chart(ctx3, {
-                type: 'line',
-                data: {
-                    labels: stindex,
-                    datasets: [
-                        {
-                            label: 'HMM00',
-                            data: stprobs00,
-                        },
-                        {
-                            label: 'HMM11',
-                            data: stprobs11,
-                        }
-                    ],
-                },
-            });
-        </script>
-        <script>
-            var ctx4 = document.getElementById("myChart4").getContext("2d");
-            var mindex = [];
-            var mean0x = [];
-            var mean0y = [];
-            var mean1x = [];
-            var mean1y = [];
-            for (var i=0; i<hmms.length; i++) {
-                mindex.push( i );
-                mean0x.push( hmms[i].observationProbabilityCPDs[0].means[0] );
-                mean0y.push( hmms[i].observationProbabilityCPDs[0].means[1] );
-                mean1x.push( hmms[i].observationProbabilityCPDs[1].means[0] );
-                mean1y.push( hmms[i].observationProbabilityCPDs[1].means[1] );
-            }
-            var myChart4 = new Chart(ctx4, {
-                type: 'line',
-                data: {
-                    labels: mindex,
-                    datasets: [
-                        {
-                            label: 'state(0).X',
-                            data: mean0x,
-                            backgroundColor: 'rgba(255, 90, 90, 1)',
-                            borderColor: 'rgba(255, 90, 90, 0.4)',
-                            fill: false,
-                        },
-                        {
-                            label: 'state(0).Y',
-                            data: mean0y,
-                            backgroundColor: 'rgba(90, 255, 90, 1)',
-                            borderColor: 'rgba(90, 255, 90, 0.4)',
-                            fill: false,
-                        },
-                        {
-                            label: 'state(1).X',
-                            data: mean1x,
-                            backgroundColor: 'rgba(255, 90, 90, 1)',
-                            borderColor: 'rgba(255, 90, 90, 0.4)',
-                            fill: false,
-                        },
-                        {
-                            label: 'state(1).Y',
-                            data: mean1y,
-                            backgroundColor: 'rgba(90, 255, 90, 1)',
-                            borderColor: 'rgba(90, 255, 90, 0.4)',
-                            fill: false,
-                        }
-                    ],
-                },
-            });
-        </script>
     </body>
 </html>
