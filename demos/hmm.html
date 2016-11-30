@@ -401,5 +401,24 @@
                 },
             });
         </script>
+        <script type="text/javascript" src="js/csvparser.js"></script>
+        <script>
+            var marketdata;
+            function processData(allText) {
+                alert('csv data loaded');
+                marketdata = csvParser(allText);
+            }
+
+            $(document).ready(function() {
+                $.ajax({
+                    type: "GET",
+                    url: "data/data_spdr_sectors.csv",
+                    dataType: "text",
+                    success: function(allText) {
+                        processData(allText);
+                    }
+                });
+            });
+        </script>
     </body>
 </html>
