@@ -51,20 +51,11 @@
                 return numeric.imageURL(rgbs);
             };
 
-			//var data2;
 			var isrunning = false;
 			var nbclasses = 20;
             var load_and_step = function () {
                 if (isrunning) {
-                    /*rbm2.train({
-                        lr : 0.6,
-                        k : 1, // CD-k.
-                        epochs : 10 // 10 iteration each step of this function
-                    });*/
-
                     for (var dgt=0; dgt<10; dgt++) {
-                        // test by comparing an original image vs a reconstructed image
-                        //var ovec = data2[d];
                         var offset = Math.floor(Math.random()*1000);
                         var didx = labels.indexOf(dgt, 5*3000+offset) - 5*3000;
                         var ovec = mnist.mnistitem(5, didx);
@@ -82,21 +73,10 @@
 					        	bestnorm2 = norm2;
 					      	}
 					    }
-                        var imgurlR = vec_to_imageurl( guesses[bestclass] )
-                        //var rvec = rbm2.reconstruct([ovec,])[0];
-                        //var imgurlR = vec_to_imageurl( rvec );
-                        //console.log(rbm.sampleHgivenV(v)[0]); // WARNING : get hidden layer probabilities from visible unit.
+                        var imgurlR = vec_to_imageurl( guesses[bestclass] );
                         document.getElementById('imgO_'+dgt).setAttribute('src', imgurlO);
                         document.getElementById('imgR_'+dgt).setAttribute('src', imgurlR);
                     }
-
-                    /*var h_index = 10;
-                    var h_Ws = [];
-                    for (var i=0; i<784; i++) {
-                        h_Ws.push( rbm2.W[i][h_index] );
-                    }
-                    var imgurlHWs = vec_to_imageurl( h_Ws );
-                    document.getElementById('imgHWs').setAttribute('src', imgurlHWs);*/
                 }
             };
 
@@ -139,17 +119,19 @@
 				</div>
 			</div>
 			<div class="row">
-				<!--<div>
+				<div>
+					<h4>Example: Winner Take All training on MNIST images</h4>
+                    A training sample of 3000 MNIST images (28x28) is used to train a WTA with 20 representative vectors.<br>
+                    The training is done over 25000 iterations in one single loop.<br>
+                    Once training is complete we cycle over a testing sample to extract (randomly at each iteration) 10 images and compare them with there closest match among the WTA vectors.<br>
+                    <br>
                     <div class="btn-group" role="group" aria-label="...">
                         <button type="button" class="btn btn-info" onclick="isrunning=true;">Run</button>
                         <button type="button" class="btn btn-danger" onclick="isrunning=false;">Pause</button>
                     </div>
                     <br>
                     <br>
-                    <div class="alert alert-warning" role="alert">
-                        Note that your browser may freeze as the RBM learns from the image set
-                    </div>
-				</div>-->
+				</div>
 				<div>
                     <table>
                         <tr>
