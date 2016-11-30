@@ -36,9 +36,8 @@
         <script type="text/javascript" src="js/csvparser.js"></script>
         <script>
             var marketdata = {};
-            //var mktXs;
-            //var hmm4 = new HiddenMarkovModel(2,6);
-            // hmm4.fitObservations(mktXs, 1, false);
+            var mktMatrix = [];
+            var hmm;
 
             var quandlToDoMonikers = ['YAHOO/INDEX_SPY', 'YAHOO/XLK', 'YAHOO/XLF', 'YAHOO/XLE', 'YAHOO/XLV'];
             var quandlDoneMonikers = [];
@@ -60,26 +59,61 @@
                 }
                 else {
                     $('.loaded').show();
+                    processAllData();
+                    hmm = new HiddenMarkovModel(2, mktMatrix[0].length);
+                    hmm.fitObservations(mktMatrix, 100, false);
                 }
             }
 
             function processData(allText) {
-                //alert('csv data loaded');
                 var qds = JSON.parse(allText).dataset;
                 console.log(qds['dataset_code'] + ' : ' + qds['data'].length);
                 marketdata[qds['dataset_code']] = qds['data'];
                 $('#'+qds['dataset_code']).hide();
-                /*marketdata = csvParser(allText);
-                mktXs = [];
-                for (var t=0; t<marketdata['Date'].length; t++) {
-                    mktXs.push( [   marketdata['NETMKT'][t],
-                                    marketdata['DXLK'][t],
-                                    marketdata['DXLV'][t],
-                                    marketdata['DXLI'][t],
-                                    marketdata['DXLE'][t],
-                                    marketdata['DXLF'][t]] );
-                }*/
                 quandlQ();
+            }
+
+            function processAllData() {
+                var data = { AllDates:[], GoodDates:[] };
+                var allkeys = Object.keys(marketdata);
+                for (var c=0; c<allkeys.length; c++) {
+                    var cname = allkeys[c];
+                    var column = marketdata[cname];
+                    data[cname] = {};
+                    for (var t=0; t<column.length; t++) {
+                        var dt = column[t][0];
+                        data[cname][dt] = column[t][1];
+                        if (data.AllDates.indexOf(dt)<0) {
+                            data.AllDates.push(dt);
+                        }
+                    }
+                }
+                for (var t=0; t<data.AllDates.length; t++) {
+                    var check = true;
+                    var dt = data.AllDates[t];
+                    for (var c=0; c<allkeys.length; c++) {
+                        var cname = allkeys[c];
+                        if (!data[cname].hasOwnProperty(dt)) {
+                            check = false;
+                        }
+                    }
+                    if (check) {
+                        data.GoodDates.push(dt);
+                    }
+                }
+                mktMatrix = [];
+                for (var t=1; t<data.GoodDates.length; t++) {
+                    var dt1 = data.GoodDates[t-1];
+                    var dt2 = data.GoodDates[t];
+                    var row = [];
+                    for (var c=0; c<allkeys.length; c++) {
+                        var cname = allkeys[c];
+                        var val1 = data[cname][dt1];
+                        var val2 = data[cname][dt2];
+                        row.push( Math.log(val1/val2)*100 );
+                    }
+                    mktMatrix.push( row );
+                }
             }
 
             $(document).ready(function() {
