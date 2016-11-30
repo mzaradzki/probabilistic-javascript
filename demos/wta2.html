@@ -33,6 +33,23 @@
 		<script type="text/javascript" src="../mnist.js"></script>
         <script type="text/javascript" src="../mnist/mnist_labels.js"></script>
 
+        <script>
+			// use GMM for convenient data simulation
+			var gmm = new GaussianMixtureModel(2,2);
+			//
+			gmm.stateDistribution = [0.5, 0.5];
+			gmm.observationProbabilityCPDs[0] = new GaussianLaw([2, 4.5], [[0.6*0.6, 0], [0, 1]]);
+			gmm.observationProbabilityCPDs[1] = new GaussianLaw([4, 2.5], [[0.6*0.6, 0], [0, 0.6*0.6]]);
+			// simulation
+			var points = gmm.simulateStates(200, true).observations;
+			// estimation
+			var guesses = WinnerTakeAll(points,2, 0.01, 1000);
+			var guessA = guesses[0];
+			var guessB = guesses[1];
+			console.log(guessA);
+			console.log(guessB);
+		</script>
+
 		<script>
 			var mnist = new MNIST("../mnist");
 
@@ -65,15 +82,16 @@
 					    var bestdelta;
 					    var bestnorm2 = -1;
 					    for (var c=0; c<nbclasses; c++) {
-					      	var delta = numeric.sub(ovec, guesses[c]);
-					      	var norm2 = numeric.dot(delta, delta);
+					      	var delta = numeric.sub(ovec, wtadigits[c]);
+					      	var norm2 = numeric.norm2Squared(delta);
 					      	if ((c==0) || (norm2<bestnorm2)) {
 					        	bestclass = c;
 					        	bestdelta = delta;
 					        	bestnorm2 = norm2;
 					      	}
 					    }
-                        var imgurlR = vec_to_imageurl( guesses[bestclass] );
+                        var imgurlR = vec_to_imageurl( wtadigits[bestclass] );
+                        //
                         document.getElementById('imgO_'+dgt).setAttribute('src', imgurlO);
                         document.getElementById('imgR_'+dgt).setAttribute('src', imgurlR);
                     }
@@ -92,7 +110,7 @@
                         data2.push( mnist.mnistitem(1, i) );
                     }
                     //
-                    guesses = WinnerTakeAll(data2, nbclasses, 0.01, 25000);
+                    wtadigits = WinnerTakeAll(data2, nbclasses, 0.01, 25000);
                     isrunning = true;
                     //load_and_step();
                     setInterval(load_and_step, 1000); // get started
@@ -105,7 +123,7 @@
             $(window).load(function() {
                 mnist.load_data_batch(1);
                 mnist.load_data_batch(5);
-                var data2, guesses;
+                var data2, wtadigits;
                 start_fun();
             });
 		</script>
@@ -116,6 +134,17 @@
 			<div class="row">
 				<div class="page-header">
 					<h1>Winner-Take-All algorithm</h1>
+				</div>
+			</div>
+			<div class="row">
+				<div>
+					<h4>Principle: unsupervised learning</h4>
+                    We iterate over a population of vector to identify (at each step) the closest "winner" among a trained set of representative vectors.<br>
+                    In the following chart we sample a 2d Gaussian Mixture with 2 components, then we "forgot" the simulated mixture states applied the WTA algorithm to estimate the center of the 2 components.<br>
+                    <br>
+				</div>
+				<div style="width:75%;" class="center-block">
+					<canvas id="myChart"></canvas>
 				</div>
 			</div>
 			<div class="row">
@@ -178,5 +207,53 @@
 			</div>
 		</div></div>
 		</div> <!-- /container -->
+		<script>
+			var ctx = document.getElementById("myChart").getContext("2d");
+			var datapoints = [];
+			var backgroundColors = [];
+			for (i=0; i<points.length; i++) {
+			    datapoints.push( {x:points[i][0], y:points[i][1], r:5} );
+			    backgroundColors.push('rgba(255, 90, 90, 0.7)');
+			}
+			//
+			datapoints.push( {x:guessA[0], y:guessA[1], r:8} );
+			backgroundColors.push('rgba(50, 255, 50, 1)');
+			//
+			datapoints.push( {x:guessB[0], y:guessB[1], r:8} );
+			backgroundColors.push('rgba(50, 255, 50, 1)');
+			//
+			var myChart = new Chart(ctx, {
+			    type: 'bubble',
+			    data: {
+			        datasets: [{
+			            label: 'Winner-Take-All',
+			            data: datapoints,
+			            backgroundColor:backgroundColors, //"#FF6384",
+			            hoverBackgroundColor: "#FF6384",
+			        }]
+			    },
+			    options: {
+			    	// see : http://stackoverflow.com/questions/37204298/chartjs-v2-hide-dataset-labels
+				    legend: {
+				    	display: false
+				    },
+				  	tooltips: {
+				    	callbacks: {
+				      		label: function(tooltipItem) {
+					        	//console.log(tooltipItem)
+					        	return tooltipItem.yLabel;
+					        }
+				      	}
+				    },
+				    scales: {
+			            yAxes: [{
+			                ticks: {
+			                    beginAtZero:true
+			                }
+			            }]
+			        },
+				},
+			});
+		</script>
 	</body>
 </html>
