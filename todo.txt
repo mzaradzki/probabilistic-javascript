@@ -1,0 +1,45 @@
+
+USEFULL PACKAGES
+	Numeric.js
+	Math.js
+	Tangle
+	Processing.js
+	GitHub pages and Jekyll blogs
+	http://mlweb.loria.fr/benchmark/index.html
+
+COOL PAGES
+	https://www.cs.utexas.edu/~teammco/misc/ (perceptron, kalman filter, particle filter)
+	http://deeplearning.net/tutorial/rbm.html
+	http://www.statisticsblog.com/2013/02/statistical-computation-in-javascript-%E2%80%94-am-i-nuts/
+	http://cs.stanford.edu/people/karpathy/convnetjs/demo/mnist.html
+	http://cs.stanford.edu/people/karpathy/convnetjs/demo/autoencoder.html
+	http://cs.stanford.edu/people/karpathy/tsnejs/
+	http://www.pyimagesearch.com/2014/06/23/applying-deep-learning-rbm-mnist-using-python/
+	https://deeplearning4j.org/restrictedboltzmannmachine
+	https://www.youtube.com/watch?v=S75EdAcXHKk (2d-moons example from scikit datasets)
+	http://www.heatonresearch.com/aifh/vol1/
+	https://dtabio.gitbooks.io/data-science-with-javascript/content/links_and_resources.html (great links)
+	http://www.datasciencecentral.com/profiles/blogs/machine-learning-in-javascript-a-compilation-of-resources
+	http://blog.webkid.io/neural-networks-in-javascript/
+	http://blog.webkid.io/
+
+SUGGESTIONS
+	Add real-data from Quandl for demo : Quandl API works from the browser !
+	Kalman filter
+	PCA through Network as in G.Hinton coursera lectures (week 15)
+	Perceptron
+	Particle filter
+	Neuron max frequency
+	Receptive fields for contrast lines
+	Oja's learning, neuronal-network and PCA: http://jeremy.fix.free.fr/Softwares/neural_pca.html
+	GARCH efficient frontier
+	Auto-encoder
+	Robust regression
+	Morphing map (SOM, see Trevor Hastie book)
+	Model for auditory neurons (function of theta)
+	TD(lambda), bandit learning
+	TG-Gammon !
+	Hodgkin Huxley for Na+
+	Circular neurons
+	Dynamic system convergence to circular attractor
+	Coin flipping and bayesian estimation
