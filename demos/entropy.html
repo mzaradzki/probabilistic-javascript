@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+        <meta name="description" content="Hidden Markov Model with Javascript">
+        <meta name="keywords" content="Hidden Markov Model, HMM, Baum-Welch algorithm, EM algorithm">
+        <meta name="author" content="m.zaradzki">
+        
+        
+        <title>Entropy with non-gaussian dependent observations</title>
+
+        <!-- Bootstrap core CSS -->
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+        <!-- Custom styles for this template -->
+        <link href="../css/styling.css" rel="stylesheet">
+        <link href="../css/favicon.ico" rel="shortcut icon">
+
+        <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+          tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+        });
+        </script>
+        <script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+        <!--<p>
+        When $a \ne 0$, there are two solutions to \(ax^2 + bx + c = 0\) and they are $$x = {-b \pm \sqrt{b^2-4ac} \over 2a}.$$
+        </p>-->
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.3.0/Chart.bundle.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/numeric/1.2.6/numeric.js"></script>
+        <script type="text/javascript" src="../gaussianvectors.js"></script>
+        <script type="text/javascript" src="../winnertakeall.js"></script>
+        <script type="text/javascript" src="../gmm.js"></script>
+        <script type="text/javascript" src="../hmm.js"></script>
+        <script>
+            var points = [];
+            for (var i=0; i<500; i++)
+            {
+                var x = Math.random();
+                var x_bit = Math.floor(x*4);
+                var y = null;
+                var y_noise = Math.random()*0.25;
+                if ((x_bit == 0) || (x_bit==2)) {
+                    if (Math.random()<0.5) {
+                        y = y_noise;
+                    }
+                    else {
+                        y = y_noise + 0.5;
+                    }
+                }
+                else {
+                    if (Math.random()<0.5) {
+                        y = y_noise + 0.25;
+                    }
+                    else {
+                        y = y_noise + 0.75;
+                    }
+                }
+                points.push( [x, y] );
+            }
+        </script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.17.0/vis.js"></script>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.17.0/vis.min.css" rel="stylesheet" />
+        
+    </head>
+    <body>
+        <div class="container">
+        <div class="row"><div class="col-md-10 col-md-offset-1">
+            <div class="row">
+                <div class="page-header">
+                    <h1>Entropy with non-gaussian dependent observations</h1>
+                    <h2><small>M.ZARADZKI - 2017</small></h2>
+                </div>
+                <div>
+                    <!-- TEXT PLACE HOLDER -->
+                </div>
+            </div>
+            <div class="row">
+                <h4>Example</h4>
+                <p>1st chart</p>
+                <div style="width:75%;" class="center-block">
+                    <canvas id="myChart1"></canvas>
+                </div>
+                <p>2nd chart</p>
+                <div style="width:75%;" class="center-block">
+                    <canvas id="myChart2"></canvas>
+                </div>
+            </div>
+        </div></div>
+        </div> <!-- /container -->
+        <script>
+            var ctx1 = document.getElementById("myChart1").getContext("2d");
+            var datapoints = [];
+            var backgroundColors = [];
+            for (var i=0; i<points.length; i++) {
+                datapoints.push( {x:points[i][0], y:points[i][1], r:5} );
+                backgroundColors.push('rgba(255, 90, 90, 0.7)');
+            }
+            //
+            //
+            var myChart1 = new Chart(ctx1, {
+                type: 'bubble',
+                data: {
+                    datasets: [{
+                        label: 'HMM',
+                        data: datapoints,
+                        backgroundColor:backgroundColors, //"#FF6384",
+                        hoverBackgroundColor: "#FF6384",
+                    }]
+                },
+                options: {
+                    // see : http://stackoverflow.com/questions/37204298/chartjs-v2-hide-dataset-labels
+                    legend: {
+                        display: false
+                    },
+                    tooltips: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                //console.log(tooltipItem)
+                                return tooltipItem.yLabel;
+                            }
+                        }
+                    },
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero:true
+                            }
+                        }]
+                    },
+                },
+            });
+        </script>
+        <script>
+            var ctx2 = document.getElementById("myChart2").getContext("2d");
+            var Xs = [];
+            var trueprobas = [];
+            var estprobas = [];
+            var nbXs = 40+1;
+            var stdev = 0.05*2;
+            var variance = Math.pow(stdev, 2)
+            var determinantsqrt = Math.pow(variance, -0.5);
+            var pdfscale = Math.pow(2*Math.PI, -0.5);
+            for (var i=0; i<nbXs; i++) {
+                x = i/(nbXs-1);
+                Xs.push(x);
+                trueprobas.push(1);
+                var estprob = 0
+                for (var k=0; k<points.length; k++) {
+                    var kx = points[k][0];
+                    var dA = (x - kx) * (x - kx) / variance;
+                    var pdf = 0;
+                    //pdf = pdfscale * determinantsqrt * Math.exp(-0.5*dA); // gaussian kernel
+                    if (dA<1) { // Epanechnikov (parabolic)
+                        pdf = 3./4. * (1-dA) / stdev;
+                    }
+                    /*if (dA<1) { // uniform kernel
+                        pdf = 0.5/stdev;
+                    }*/
+                    estprob+= pdf
+                }
+                estprob/= points.length;
+                estprobas.push(estprob);
+            }
+            
+            var myChart2 = new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: Xs,
+                    datasets: [
+                        {
+                            label: 'True',
+                            data: trueprobas,
+                            backgroundColor: 'rgba(255, 90, 90, 0.9)',
+                            borderColor: 'rgba(255, 90, 90, 0.3)',
+                            fill: false,
+                        },
+                        {
+                            label: 'Estimated',
+                            data: estprobas,
+                            backgroundColor: 'rgba(90, 255, 90, 0.5)',
+                            borderColor: 'rgba(90, 255, 90, 0.6)',
+                            fill: true,
+                        },
+                    ],
+                },
+                /*options: {
+                    // see : http://stackoverflow.com/questions/37204298/chartjs-v2-hide-dataset-labels
+                    legend: {
+                        display: false
+                    },
+                    tooltips: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                //console.log(tooltipItem)
+                                return tooltipItem.yLabel;
+                            }
+                        }
+                    },
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero:true
+                            }
+                        }]
+                    },
+                },*/
+            });
+        </script>
+    </body>
+</html>
