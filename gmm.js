@@ -116,6 +116,7 @@ GaussianMixtureModel.prototype.fitObservations = function(observations, maxIters
 GibbsGMM = function(nbstates, mcmcsteps, prioruncertainty, observations) {
   // see T.Hastie, R.Tibshirani, J.Friedman : The Elements of Statistical Learning
   // sample the means only at present
+  // prioruncertainty is a scalar for the diagonal of a cor/covar matrix
   // TO DO : extend to whole simulation
   var obsdim = observations[0].length;
   var gmm0 = new GaussianMixtureModel(nbstates, obsdim);
@@ -126,8 +127,11 @@ GibbsGMM = function(nbstates, mcmcsteps, prioruncertainty, observations) {
   // Prior distribution of cluster mean : the same for all clusters
   var prior = new GaussianLaw(numeric.mul(observations[0], 0), numeric.mul(numeric.identity(obsdim), prioruncertainty));
   //
+  var gmms = []; // to store the sampled GMM parameters at each MC step
+  //
   for (var mcstep=0; mcstep<mcmcsteps; mcstep++) {
-    console.log('new MCMC step')
+    console.log('new MCMC step');
+    gmms.push(new GaussianMixtureModel(nbstates, obsdim)); // to store results at end of MC step
     var denoms = numeric.mul(gmm0.stateDistribution, 0); // null vector of correct dimension
     var totalprobas = numeric.mul(gmm0.stateDistribution, 0); // null vector of correct dimension
     var guesses = [];
@@ -176,7 +180,9 @@ GibbsGMM = function(nbstates, mcmcsteps, prioruncertainty, observations) {
       var posterior = new GaussianLaw(posteriormean, posteriorcov);
       var sampledmeans = posterior.simulate();
       gmm0.observationProbabilityCPDs[s] = new GaussianLaw(sampledmeans, truecov);
+      gmms[mcstep].observationProbabilityCPDs[s] = new GaussianLaw(sampledmeans, truecov);
       console.log(sampledmeans);
     }
-  }
+  } // end of mcstep loop
+  return gmms;
 };
