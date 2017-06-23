@@ -44,7 +44,7 @@
                 jStat.beta.sample(1, 1);
             }
 
-            for (var i=1; i<150; i++)
+            for (var i=1; i<500; i++)
             {
                 var Theta = Thetas[i-1];
                 // First simulate Bernoulli probabilities from B1 and B2
@@ -88,11 +88,33 @@
                     <h2><small>M.ZARADZKI - 2017</small></h2>
                 </div>
                 <div>
-                    <!-- TEXT PLACE HOLDER -->
+                    Assume you are facing a binary choice problem, basically betting on A outcome versus B outcome. A/B can be 2 webpage designs, 2 adverstisment websites ... or two "Bandits" in a casino.<br>
+                    Obviously if you knew average return-on-investment of A and B you would pick the more rewarding option.<br>
+                    But you don't have this information and the only way to get this information is to try both A and B a few times.<br>
+                    Your decision is now the following : how many times do I need to try A and B before I can confidently know determine which is best? In a real life problem like adverstising both A and B have a cost so you need a reliable testing strategy.<br>
+                    Chose $\Theta_{a}=\left(\alpha_{a},\beta_{a}\right)$ and $\Theta_{b}=\left(\alpha_{b},\beta_{b}\right)$.
+                    In our case we set the correct distribution of Ad campaign to be Bernoulli.
+                    At each round we will select 1 ad' and thus we will only update $\Theta_{a}$ or $\Theta_{b}$.
+                    Note that at each round we simulate the 2 Betas to get Bernouilli probabilities $P_{a}$ and $P_{b}$.
+                    This simulation gives us our optimal action : chose the action a/b that has the highest probability.
                 </div>
             </div>
             <div class="row">
+                <h4>Strategy / Algorithm</h4>
+                Sample estimated $\hat{P_{a}}$ and $\hat{P_{b}}$ from $B_{a}$ and $B_{b}$ distributions<br>
+                Select the action $x$ that has the highest $\hat{P_{x}}$ value<br>
+                Perform action $x$<br>
+                If $x$ succed increment $\alpha_{x}$<br>
+                Otherwise increment $\beta_{x}$<br>
+                REPEAT ABOVE STEPS<br>
+                <br>
+                <b>Notes:</b><br>
+                - This loop does not need to be stopped : as a winning action emerges the other be sampled more rarely.<br>
+                - As the losing action will be sampled less and less often, thus its estimate will note converge toward its real value.<br>
+            </div>
+            <div class="row">
                 <h4>Example</h4>
+                For this experiment we have action A rewarding 30% of the time and action B rewarding 40% of the time.
                 <p>1st chart</p>
                 <div style="width:75%;" class="center-block">
                     <canvas id="myChart1"></canvas>
@@ -107,7 +129,9 @@
             //var mean0y = [];
             var mean1x = [];
             //var mean1y = [];
-            for (var i=0; i<Thetas.length; i++) {
+            var step = 10;
+            for (var s=0; s<Thetas.length/step; s++) {
+                var i = s*step;
                 mindex.push( i );
                 mean0x.push( Thetas[i][0]/(Thetas[i][0]+Thetas[i][1]) );
                 //mean0y.push( Thetas[i][0]/(Thetas[i][0]+Thetas[i][1]) );
@@ -148,6 +172,19 @@
                             fill: false,
                         }*/
                     ],
+                },
+                options: {
+                    // see : http://stackoverflow.com/questions/37204298/chartjs-v2-hide-dataset-labels
+                    legend: {
+                        display: true
+                    },
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    },
                 },
             });
         </script>
