@@ -119,24 +119,24 @@
                 <div style="width:75%;" class="center-block">
                     <canvas id="myChart1"></canvas>
                 </div>
+                <p>2nd chart</p>
+                <div style="width:75%;" class="center-block">
+                    <canvas id="myChart2"></canvas>
+                </div>
             </div>
         </div></div>
         </div> <!-- /container -->
         <script>
             var ctx1 = document.getElementById("myChart1").getContext("2d");
             var mindex = [];
-            var mean0x = [];
-            //var mean0y = [];
-            var mean1x = [];
-            //var mean1y = [];
+            var meanAx = [];
+            var meanBx = [];
             var step = 10;
             for (var s=0; s<Thetas.length/step; s++) {
                 var i = s*step;
                 mindex.push( i );
-                mean0x.push( Thetas[i][0]/(Thetas[i][0]+Thetas[i][1]) );
-                //mean0y.push( Thetas[i][0]/(Thetas[i][0]+Thetas[i][1]) );
-                mean1x.push( Thetas[i][2]/(Thetas[i][2]+Thetas[i][3]) );
-                //mean1y.push( Thetas[i][2]/(Thetas[i][2]+Thetas[i][3]) );
+                meanAx.push( Thetas[i][0]/(Thetas[i][0]+Thetas[i][1]) );
+                meanBx.push( Thetas[i][2]/(Thetas[i][2]+Thetas[i][3]) );
             }
             var myChart1 = new Chart(ctx1, {
                 type: 'line',
@@ -145,32 +145,18 @@
                     datasets: [
                         {
                             label: 'Mean Prob. 1',
-                            data: mean0x,
+                            data: meanAx,
                             backgroundColor: 'rgba(255, 90, 90, 1)',
                             borderColor: 'rgba(255, 90, 90, 0.4)',
                             fill: false,
                         },
-                        /*{
-                            label: 'state(0).Y',
-                            data: mean0y,
-                            backgroundColor: 'rgba(90, 255, 90, 1)',
-                            borderColor: 'rgba(90, 255, 90, 0.4)',
-                            fill: false,
-                        },*/
                         {
                             label: 'Mean Prob. 2',
-                            data: mean1x,
+                            data: meanBx,
                             backgroundColor: 'rgba(90, 255, 90, 1)',
                             borderColor: 'rgba(90, 255, 90, 0.4)',
                             fill: false,
                         },
-                        /*{
-                            label: 'state(1).Y',
-                            data: mean1y,
-                            backgroundColor: 'rgba(90, 255, 90, 1)',
-                            borderColor: 'rgba(90, 255, 90, 0.4)',
-                            fill: false,
-                        }*/
                     ],
                 },
                 options: {
@@ -178,6 +164,56 @@
                     legend: {
                         display: true
                     },
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    },
+                },
+            });
+        </script>
+        <script>
+            var ctx2 = document.getElementById("myChart2").getContext("2d");
+            var X = [];
+            var Pa = [];
+            var Pb = [];
+            var i = Thetas.length-1;
+            var steps = 50;
+            for (var s=0; s<=steps; s++) {
+                var x = s/steps;
+                X.push( x );
+                Pa.push( jStat.beta.pdf(x, Thetas[i][0], Thetas[i][1]) );
+                Pb.push( jStat.beta.pdf(x, Thetas[i][2], Thetas[i][3]) );
+            }
+            var myChart2 = new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: X,
+                    datasets: [
+                        {
+                            label: 'pdf of Prob. 1',
+                            data: Pa,
+                            backgroundColor: 'rgba(255, 90, 90, 0.5)',
+                            borderColor: 'rgba(255, 90, 90, 0.5)',
+                            fill: true,
+                        },
+                        {
+                            label: 'pdf of Prob. 2',
+                            data: Pb,
+                            backgroundColor: 'rgba(90, 255, 90, 0.5)',
+                            borderColor: 'rgba(90, 255, 90, 0.5)',
+                            fill: true,
+                        },
+                    ],
+                },
+                options: {
+                    // see : http://stackoverflow.com/questions/37204298/chartjs-v2-hide-dataset-labels
+                    legend: {
+                        display: true
+                    },
+                    elements: { point: { radius: 0 } }, // hide "dots"
                     scales: {
                         yAxes: [{
                             ticks: {
