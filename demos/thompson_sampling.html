@@ -236,11 +236,10 @@
             for (var s=0; s<Thetas.length/steps; s++) {
                 var i = s*steps;
                 mindex.push( i );
-
                 var p_best = 0;
                 var w_total = 0;
-                for (k=1; k<10; k++) { // numerical integration
-                    var x = k/10;
+                for (k=1; k<25; k++) { // numerical integration
+                    var x = k/25;
                     var w = jStat.beta.pdf(x, Thetas[i][0], Thetas[i][1]);
                     w_total+= w;
                     p_best+= w * ( 1-jStat.beta.cdf(x, Thetas[i][2], Thetas[i][3]) );
