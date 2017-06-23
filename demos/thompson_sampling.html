@@ -119,9 +119,13 @@
                 <div style="width:75%;" class="center-block">
                     <canvas id="myChart1"></canvas>
                 </div>
-                <p>2nd chart</p>
+                <p>2nd chart : a posteriori density of A and B success rate</p>
                 <div style="width:75%;" class="center-block">
                     <canvas id="myChart2"></canvas>
+                </div>
+                <p>3rd chart : probability to picking the best action</p>
+                <div style="width:75%;" class="center-block">
+                    <canvas id="myChart3"></canvas>
                 </div>
             </div>
         </div></div>
@@ -144,14 +148,14 @@
                     labels: mindex,
                     datasets: [
                         {
-                            label: 'Mean Prob. 1',
+                            label: 'Mean Prob. A',
                             data: meanAx,
                             backgroundColor: 'rgba(255, 90, 90, 1)',
                             borderColor: 'rgba(255, 90, 90, 0.4)',
                             fill: false,
                         },
                         {
-                            label: 'Mean Prob. 2',
+                            label: 'Mean Prob. B',
                             data: meanBx,
                             backgroundColor: 'rgba(90, 255, 90, 1)',
                             borderColor: 'rgba(90, 255, 90, 0.4)',
@@ -193,14 +197,14 @@
                     labels: X,
                     datasets: [
                         {
-                            label: 'pdf of Prob. 1',
+                            label: 'pdf of Prob. A',
                             data: Pa,
                             backgroundColor: 'rgba(255, 90, 90, 0.5)',
                             borderColor: 'rgba(255, 90, 90, 0.5)',
                             fill: true,
                         },
                         {
-                            label: 'pdf of Prob. 2',
+                            label: 'pdf of Prob. B',
                             data: Pb,
                             backgroundColor: 'rgba(90, 255, 90, 0.5)',
                             borderColor: 'rgba(90, 255, 90, 0.5)',
@@ -214,6 +218,56 @@
                         display: true
                     },
                     elements: { point: { radius: 0 } }, // hide "dots"
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    },
+                },
+            });
+        </script>
+        <script>
+            var ctx3 = document.getElementById("myChart3").getContext("2d");
+            var mindex = [];
+            var Pbest = [];
+            var steps = 10;
+            for (var s=0; s<Thetas.length/steps; s++) {
+                var i = s*steps;
+                mindex.push( i );
+
+                var p_best = 0;
+                var w_total = 0;
+                for (k=1; k<10; k++) { // numerical integration
+                    var x = k/10;
+                    var w = jStat.beta.pdf(x, Thetas[i][0], Thetas[i][1]);
+                    w_total+= w;
+                    p_best+= w * ( 1-jStat.beta.cdf(x, Thetas[i][2], Thetas[i][3]) );
+                }
+
+                Pbest.push( p_best/w_total );
+            }
+            var myChart3 = new Chart(ctx3, {
+                type: 'line',
+                data: {
+                    labels: mindex,
+                    datasets: [
+                        {
+                            label: 'Prob. best choice',
+                            data: Pbest,
+                            backgroundColor: 'rgba(255, 90, 90, 0.5)',
+                            borderColor: 'rgba(255, 90, 90, 0.5)',
+                            fill: true,
+                        },
+                    ],
+                },
+                options: {
+                    // see : http://stackoverflow.com/questions/37204298/chartjs-v2-hide-dataset-labels
+                    legend: {
+                        display: true
+                    },
+                    //elements: { point: { radius: 0 } }, // hide "dots"
                     scales: {
                         yAxes: [{
                             ticks: {
