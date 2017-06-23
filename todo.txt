@@ -25,21 +25,23 @@ COOL PAGES
 
 SUGGESTIONS
 	Add real-data from Quandl for demo : Quandl API works from the browser !
+	GARCH efficient frontier
 	Kalman filter
+	Particle filter
+	Robust regression
 	PCA through Network as in G.Hinton coursera lectures (week 15)
 	Perceptron
-	Particle filter
+	Auto-encoder
+	Morphing map (SOM, see Trevor Hastie book)
+	TD(lambda)
+	Bandit learning (DONE as part of Thompson sampling)
+	Coin flipping and bayesian estimation (DONE as part of Thompson sampling)
+	TG-Gammon !
 	Neuron max frequency
 	Receptive fields for contrast lines
 	Oja's learning, neuronal-network and PCA: http://jeremy.fix.free.fr/Softwares/neural_pca.html
-	GARCH efficient frontier
-	Auto-encoder
-	Robust regression
-	Morphing map (SOM, see Trevor Hastie book)
-	Model for auditory neurons (function of theta)
-	TD(lambda), bandit learning
-	TG-Gammon !
 	Hodgkin Huxley for Na+
 	Circular neurons
+	Model for auditory neurons (function of theta)
 	Dynamic system convergence to circular attractor
-	Coin flipping and bayesian estimation
+	
