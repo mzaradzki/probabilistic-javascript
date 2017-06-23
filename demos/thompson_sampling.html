@@ -115,18 +115,24 @@
             <div class="row">
                 <h4>Example</h4>
                 For this experiment we have action A rewarding 30% of the time and action B rewarding 40% of the time.
-                <p>1st chart</p>
+                <br>
+                <p><b>1st chart</b></p>
                 <div style="width:75%;" class="center-block">
                     <canvas id="myChart1"></canvas>
                 </div>
-                <p>2nd chart : a posteriori density of A and B success rate</p>
+                <br>
+                <p><b>2nd chart</b> : a posteriori density of A and B success rate</p>
                 <div style="width:75%;" class="center-block">
                     <canvas id="myChart2"></canvas>
                 </div>
-                <p>3rd chart : probability to picking the best action</p>
+                <br>
+                <p><b>3rd chart</b> : probability to picking the best action</p>
+                Here we use the running $\Theta_{a,b}$ parameters to compute $P\left(B_{b}\geq B_{a}\right)$.<br>
+                Remark : There is no closed-formula for this but this is a simple 1d numerical integration.<br>
                 <div style="width:75%;" class="center-block">
                     <canvas id="myChart3"></canvas>
                 </div>
+                <br>
             </div>
         </div></div>
         </div> <!-- /container -->
