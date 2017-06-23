@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+        <meta name="description" content="Hidden Markov Model with Javascript">
+        <meta name="keywords" content="Hidden Markov Model, HMM, Baum-Welch algorithm, EM algorithm">
+        <meta name="author" content="m.zaradzki">
+        
+        
+        <title>Thompson Sampling for A/B testing</title>
+
+        <!-- Bootstrap core CSS -->
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+        <!-- Custom styles for this template -->
+        <link href="../css/styling.css" rel="stylesheet">
+        <link href="../css/favicon.ico" rel="shortcut icon">
+
+        <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+          tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+        });
+        </script>
+        <script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+        <!--<p>
+        When $a \ne 0$, there are two solutions to \(ax^2 + bx + c = 0\) and they are $$x = {-b \pm \sqrt{b^2-4ac} \over 2a}.$$
+        </p>-->
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.3.0/Chart.bundle.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/numeric/1.2.6/numeric.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jstat/1.6.2/jstat.js"></script>
+        <script>
+            //var points = [];
+            var Thetas = []; // Thetas = [Theta,...] and Theta = (alpha1, beta1, alpha2, beta2) for Betas distributions B1 and B2
+            Thetas.push( [1,1,1,1] ); // Initial prior distributions
+            var Ps = [0.30, 0.40]; // The Bernoulli probabilities of the Bandits
+
+            // Let the random generator run for a while
+            for (var burn=0; burn<25; burn++)
+            {
+                Math.random();
+                jStat.beta.sample(1, 1);
+            }
+
+            for (var i=1; i<150; i++)
+            {
+                var Theta = Thetas[i-1];
+                // First simulate Bernoulli probabilities from B1 and B2
+                var p1 = jStat.beta.sample(Theta[0], Theta[1]);
+                var p2 = jStat.beta.sample(Theta[2], Theta[3]);
+
+                // Choose the "best" bandit i.e. highest "p" of success
+                var j = 1; // Bandit 1
+                if (p1<p2)
+                {
+                    j = 2; // Bandit 2
+                }
+                var offset = (j-1)*2; // offset of Theta vector
+
+                var newTheta = Theta.slice(); // deep copy of array
+
+                var P = Ps[j-1]; // The bandit outcome is sampled from its true distribution
+                var win = (Math.random() > (1-P));
+
+                if (win) {
+                    newTheta[offset]+= 1; // alpha parameter of Beta distribution
+                }
+                else {
+                    newTheta[offset+1]+= 1; // beta parameter of Beta distribution
+                }
+
+                Thetas.push( newTheta );
+            }
+        </script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.17.0/vis.js"></script>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.17.0/vis.min.css" rel="stylesheet" />
+        
+    </head>
+    <body>
+        <div class="container">
+        <div class="row"><div class="col-md-10 col-md-offset-1">
+            <div class="row">
+                <div class="page-header">
+                    <h1>Thompson Sampling for A/B testing</h1>
+                    <h1><small>Also called the "Bandit" problem or the "Exploit vs Exploit" problem</small></h1>
+                    <h2><small>M.ZARADZKI - 2017</small></h2>
+                </div>
+                <div>
+                    <!-- TEXT PLACE HOLDER -->
+                </div>
+            </div>
+            <div class="row">
+                <h4>Example</h4>
+                <p>1st chart</p>
+                <div style="width:75%;" class="center-block">
+                    <canvas id="myChart1"></canvas>
+                </div>
+            </div>
+        </div></div>
+        </div> <!-- /container -->
+        <script>
+            var ctx1 = document.getElementById("myChart1").getContext("2d");
+            var mindex = [];
+            var mean0x = [];
+            //var mean0y = [];
+            var mean1x = [];
+            //var mean1y = [];
+            for (var i=0; i<Thetas.length; i++) {
+                mindex.push( i );
+                mean0x.push( Thetas[i][0]/(Thetas[i][0]+Thetas[i][1]) );
+                //mean0y.push( Thetas[i][0]/(Thetas[i][0]+Thetas[i][1]) );
+                mean1x.push( Thetas[i][2]/(Thetas[i][2]+Thetas[i][3]) );
+                //mean1y.push( Thetas[i][2]/(Thetas[i][2]+Thetas[i][3]) );
+            }
+            var myChart1 = new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: mindex,
+                    datasets: [
+                        {
+                            label: 'Mean Prob. 1',
+                            data: mean0x,
+                            backgroundColor: 'rgba(255, 90, 90, 1)',
+                            borderColor: 'rgba(255, 90, 90, 0.4)',
+                            fill: false,
+                        },
+                        /*{
+                            label: 'state(0).Y',
+                            data: mean0y,
+                            backgroundColor: 'rgba(90, 255, 90, 1)',
+                            borderColor: 'rgba(90, 255, 90, 0.4)',
+                            fill: false,
+                        },*/
+                        {
+                            label: 'Mean Prob. 2',
+                            data: mean1x,
+                            backgroundColor: 'rgba(90, 255, 90, 1)',
+                            borderColor: 'rgba(90, 255, 90, 0.4)',
+                            fill: false,
+                        },
+                        /*{
+                            label: 'state(1).Y',
+                            data: mean1y,
+                            backgroundColor: 'rgba(90, 255, 90, 1)',
+                            borderColor: 'rgba(90, 255, 90, 0.4)',
+                            fill: false,
+                        }*/
+                    ],
+                },
+            });
+        </script>
+    </body>
+</html>
