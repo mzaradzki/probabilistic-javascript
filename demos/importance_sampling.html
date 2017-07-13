@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+        <meta name="description" content="Hidden Markov Model with Javascript">
+        <meta name="keywords" content="Hidden Markov Model, HMM, Baum-Welch algorithm, EM algorithm">
+        <meta name="author" content="m.zaradzki">
+        
+        
+        <title>Importance sampling for Baysian prediction</title>
+
+        <!-- Bootstrap core CSS -->
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+        <!-- Custom styles for this template -->
+        <link href="../css/styling.css" rel="stylesheet">
+        <link href="../css/favicon.ico" rel="shortcut icon">
+
+        <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+          tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+        });
+        </script>
+        <script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+        <!--<p>
+        When $a \ne 0$, there are two solutions to \(ax^2 + bx + c = 0\) and they are $$x = {-b \pm \sqrt{b^2-4ac} \over 2a}.$$
+        </p>-->
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.3.0/Chart.bundle.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/numeric/1.2.6/numeric.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jstat/1.6.2/jstat.js"></script>
+        <script>
+            //var points = [];
+            var Thetas = []; // Thetas = [Theta,...] and Theta = (alpha1, beta1, alpha2, beta2) for Betas distributions B1 and B2
+            Thetas.push( [1,1,1,1] ); // Initial prior distributions
+            var Ps = [0.30, 0.40]; // The Bernoulli probabilities of the Bandits
+
+            // Let the random generator run for a while
+            for (var burn=0; burn<25; burn++)
+            {
+                Math.random();
+                jStat.beta.sample(1, 1);
+            }
+
+            for (var i=1; i<500; i++)
+            {
+                var Theta = Thetas[i-1];
+                // First simulate Bernoulli probabilities from B1 and B2
+                var p1 = jStat.beta.sample(Theta[0], Theta[1]);
+                var p2 = jStat.beta.sample(Theta[2], Theta[3]);
+
+                // Choose the "best" bandit i.e. highest "p" of success
+                var j = 1; // Bandit 1
+                if (p1<p2)
+                {
+                    j = 2; // Bandit 2
+                }
+                var offset = (j-1)*2; // offset of Theta vector
+
+                var newTheta = Theta.slice(); // deep copy of array
+
+                var P = Ps[j-1]; // The bandit outcome is sampled from its true distribution
+                var win = (Math.random() > (1-P));
+
+                if (win) {
+                    newTheta[offset]+= 1; // alpha parameter of Beta distribution
+                }
+                else {
+                    newTheta[offset+1]+= 1; // beta parameter of Beta distribution
+                }
+
+                Thetas.push( newTheta );
+            }
+        </script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.17.0/vis.js"></script>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.17.0/vis.min.css" rel="stylesheet" />
+        
+    </head>
+    <body>
+        <div class="container">
+        <div class="row"><div class="col-md-10 col-md-offset-1">
+            <div class="row">
+                <div class="page-header">
+                    <h1>Importance sampling for Baysian prediction</h1>
+                    <h2><small>M.ZARADZKI - 2017</small></h2>
+                </div>
+                <div>
+                    Problem description ...
+                </div>
+            </div>
+            <div class="row">
+                <h4>Strategy / Algorithm</h4>
+
+                <br>
+
+                $P\left(\theta\left|\mathcal{O}\right.\right)P\left(\mathcal{O}\right)=P\left(\mathcal{O}\left|\theta\right.\right)P\left(\theta\right)$
+
+                <br>
+
+                $P\left(\theta\left|\mathcal{O}\right.\right)=\frac{P\left(\mathcal{O}\left|\theta\right.\right)P\left(\theta\right)}{P\left(\mathcal{O}\right)}$
+
+                <br>
+
+                $P\left(\mathcal{O}\right)=\int P\left(\mathcal{O}\left|\theta\right.\right)P\left(\theta\right)d\theta$
+
+                <br>
+
+                $\mathcal{O}=\left\{ \left(x_{1},y_{1}\right),\left(x_{2},y_{2}\right),\ldots,\left(x_{N},y_{N}\right)\right\}$
+
+                <br>
+
+                $P\left(y^{new}\left|x^{new},\mathcal{\mathcal{O}}\right.\right)=\int P\left(y^{new}\left|x^{new},\theta\right.\right)P\left(\theta\left|\mathcal{O}\right.\right)d\theta$
+
+                <br>
+
+                $P\left(y^{new}\left|x^{new},\mathcal{\mathcal{O}}\right.\right)=\frac{\int P\left(y^{new}\left|x^{new},\theta\right.\right)P\left(\mathcal{O}\left|\theta\right.\right)P\left(\theta\right)d\theta}{\int P\left(\mathcal{O}\left|\theta\right.\right)P\left(\theta\right)d\theta}$
+
+                <br>
+
+                $W_{Q}\left(\theta\right)=\frac{P\left(\mathcal{O}\left|\theta\right.\right)P\left(\theta\right)}{Q\left(\theta\right)}$
+
+                <br>
+
+                $\int P\left(y^{new}\left|x^{new},\theta\right.\right)P\left(\mathcal{O}\left|\theta\right.\right)P\left(\theta\right)d\theta=E_{Q}\left[P\left(y^{new}\left|x^{new},\theta\right.\right)\frac{P\left(\mathcal{O}\left|\theta\right.\right)P\left(\theta\right)}{Q\left(\theta\right)}\right]$
+
+                <br>
+
+                $P\left(y^{new}\left|x^{new},\mathcal{\mathcal{O}}\right.\right)=\frac{E_{Q}\left[P\left(y^{new}\left|x^{new},\theta\right.\right)W_{Q}\left(\theta\right)\right]}{E_{Q}\left[W_{Q}\left(\theta\right)\right]}$
+
+                <br>
+
+                <!--<b>Notes:</b><br>
+                - This loop does not need to be stopped : as a winning action emerges the other be sampled more rarely.<br>
+                - As the losing action will be sampled less and less often, thus its estimate will note converge toward its real value.<br>-->
+            </div>
+            <div class="row">
+                <!--<h4>Example</h4>
+                For this experiment we have action A rewarding 30% of the time and action B rewarding 40% of the time.
+                <br>
+                <p><b>1st chart</b></p>
+                <div style="width:75%;" class="center-block">
+                    <canvas id="myChart1"></canvas>
+                </div>
+                <br>
+                <p><b>2nd chart</b> : a posteriori density of A and B success rate</p>
+                <div style="width:75%;" class="center-block">
+                    <canvas id="myChart2"></canvas>
+                </div>
+                <br>
+                <p><b>3rd chart</b> : probability to picking the best action</p>
+                Here we use the running $\Theta_{a,b}$ parameters to compute $P\left(B_{b}\geq B_{a}\right)$.<br>
+                Remark : There is no closed-formula for this but this is a simple 1d numerical integration.<br>
+                <div style="width:75%;" class="center-block">
+                    <canvas id="myChart3"></canvas>
+                </div>
+                <br>-->
+            </div>
+        </div></div>
+        </div> <!-- /container -->
+        <!--<script>
+            var ctx1 = document.getElementById("myChart1").getContext("2d");
+            var mindex = [];
+            var meanAx = [];
+            var meanBx = [];
+            var step = 10;
+            for (var s=0; s<Thetas.length/step; s++) {
+                var i = s*step;
+                mindex.push( i );
+                meanAx.push( Thetas[i][0]/(Thetas[i][0]+Thetas[i][1]) );
+                meanBx.push( Thetas[i][2]/(Thetas[i][2]+Thetas[i][3]) );
+            }
+            var myChart1 = new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: mindex,
+                    datasets: [
+                        {
+                            label: 'Mean Prob. A',
+                            data: meanAx,
+                            backgroundColor: 'rgba(255, 90, 90, 1)',
+                            borderColor: 'rgba(255, 90, 90, 0.4)',
+                            fill: false,
+                        },
+                        {
+                            label: 'Mean Prob. B',
+                            data: meanBx,
+                            backgroundColor: 'rgba(90, 255, 90, 1)',
+                            borderColor: 'rgba(90, 255, 90, 0.4)',
+                            fill: false,
+                        },
+                    ],
+                },
+                options: {
+                    // see : http://stackoverflow.com/questions/37204298/chartjs-v2-hide-dataset-labels
+                    legend: {
+                        display: true
+                    },
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    },
+                },
+            });
+        </script>
+        <script>
+            var ctx2 = document.getElementById("myChart2").getContext("2d");
+            var X = [];
+            var Pa = [];
+            var Pb = [];
+            var i = Thetas.length-1;
+            var steps = 50;
+            for (var s=0; s<=steps; s++) {
+                var x = s/steps;
+                X.push( x );
+                Pa.push( jStat.beta.pdf(x, Thetas[i][0], Thetas[i][1]) );
+                Pb.push( jStat.beta.pdf(x, Thetas[i][2], Thetas[i][3]) );
+            }
+            var myChart2 = new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: X,
+                    datasets: [
+                        {
+                            label: 'pdf of Prob. A',
+                            data: Pa,
+                            backgroundColor: 'rgba(255, 90, 90, 0.5)',
+                            borderColor: 'rgba(255, 90, 90, 0.5)',
+                            fill: true,
+                        },
+                        {
+                            label: 'pdf of Prob. B',
+                            data: Pb,
+                            backgroundColor: 'rgba(90, 255, 90, 0.5)',
+                            borderColor: 'rgba(90, 255, 90, 0.5)',
+                            fill: true,
+                        },
+                    ],
+                },
+                options: {
+                    // see : http://stackoverflow.com/questions/37204298/chartjs-v2-hide-dataset-labels
+                    legend: {
+                        display: true
+                    },
+                    elements: { point: { radius: 0 } }, // hide "dots"
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    },
+                },
+            });
+        </script>
+        <script>
+            var ctx3 = document.getElementById("myChart3").getContext("2d");
+            var mindex = [];
+            var Pbest = [];
+            var steps = 10;
+            for (var s=0; s<Thetas.length/steps; s++) {
+                var i = s*steps;
+                mindex.push( i );
+                var p_best = 0;
+                var w_total = 0;
+                for (k=1; k<25; k++) { // numerical integration
+                    var x = k/25;
+                    var w = jStat.beta.pdf(x, Thetas[i][0], Thetas[i][1]);
+                    w_total+= w;
+                    p_best+= w * ( 1-jStat.beta.cdf(x, Thetas[i][2], Thetas[i][3]) );
+                }
+
+                Pbest.push( p_best/w_total );
+            }
+            var myChart3 = new Chart(ctx3, {
+                type: 'line',
+                data: {
+                    labels: mindex,
+                    datasets: [
+                        {
+                            label: 'Prob. best choice',
+                            data: Pbest,
+                            backgroundColor: 'rgba(255, 90, 90, 0.5)',
+                            borderColor: 'rgba(255, 90, 90, 0.5)',
+                            fill: true,
+                        },
+                    ],
+                },
+                options: {
+                    // see : http://stackoverflow.com/questions/37204298/chartjs-v2-hide-dataset-labels
+                    legend: {
+                        display: true
+                    },
+                    //elements: { point: { radius: 0 } }, // hide "dots"
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    },
+                },
+            });
+        </script>-->
+    </body>
+</html>
