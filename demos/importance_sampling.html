@@ -87,49 +87,50 @@
                     <h2><small>M.ZARADZKI - 2017</small></h2>
                 </div>
                 <div>
-                    Problem description ...
+                    <h4>Problem statement</h4>
+                    <br>
+
+                    We have a set of observations comprising of explanatory variables and target variables :<br>
+                    $\mathcal{O}=\left\{ \left(x_{1},y_{1}\right),\left(x_{2},y_{2}\right),\ldots,\left(x_{N},y_{N}\right)\right\}$
+                    <br><br>
+
+                    Our goal is to make a prediction on the target variable value for a new sample.<br>
+                    Formally we want to compute the probability :<br>
+                    $P\left(y^{new}\left|x^{new},\mathcal{\mathcal{O}}\right.\right)$
+                    <br><br>
+
+                    In a Bayesian setting we do not assume a single "best" value for $\theta$ so we integrate over its probability distribution as follow :<br>
+                    $P\left(y^{new}\left|x^{new},\mathcal{\mathcal{O}}\right.\right)=\int P\left(y^{new}\left|x^{new},\theta\right.\right)P\left(\theta\left|\mathcal{O}\right.\right)d\theta$
+                    <br><br>
                 </div>
             </div>
             <div class="row">
-                <h4>Strategy / Algorithm</h4>
-
+                <h4>Monte Carlo approximation</h4>
                 <br>
 
-                $P\left(\theta\left|\mathcal{O}\right.\right)P\left(\mathcal{O}\right)=P\left(\mathcal{O}\left|\theta\right.\right)P\left(\theta\right)$
+                Using Bayes formula we get :<br>
+                $P\left(\theta\left|\mathcal{O}\right.\right)=\frac{P\left(\mathcal{O}\left|\theta\right.\right)Prior\left(\theta\right)}{P\left(\mathcal{O}\right)}$
+                <br><br>
 
-                <br>
+                The denominator can expressed as an integral :<br>
+                $P\left(\mathcal{O}\right)=\int P\left(\mathcal{O}\left|\theta\right.\right)Prior\left(\theta\right)d\theta$
+                <br><br>
+                
+                As the denominator does not depend on $\theta$ we get :<br>
+                $P\left(y^{new}\left|x^{new},\mathcal{\mathcal{O}}\right.\right)=\frac{\int P\left(y^{new}\left|x^{new},\theta\right.\right)P\left(\mathcal{O}\left|\theta\right.\right)Prior\left(\theta\right)d\theta}{\int P\left(\mathcal{O}\left|\theta\right.\right)Prior\left(\theta\right)d\theta}$
+                <br><br>
 
-                $P\left(\theta\left|\mathcal{O}\right.\right)=\frac{P\left(\mathcal{O}\left|\theta\right.\right)P\left(\theta\right)}{P\left(\mathcal{O}\right)}$
+                We can rewrite the 2 integrals as expectations as to approximate them via Monte Carlo simulation :<br>
+                $P\left(y^{new}\left|x^{new},\mathcal{\mathcal{O}}\right.\right)=\frac{E_{Prior}\left[P\left(y^{new}\left|x^{new},\theta\right.\right)P\left(\mathcal{O}\left|\theta\right.\right)\right]}{E_{Prior}\left[P\left(\mathcal{O}\left|\theta\right.\right)\right]}$
+                <br><br>
 
-                <br>
+                More generally we can sample form an auxialiary distribution $Q$ by setting :<br>
+                $W_{Q}\left(\theta\right)=\frac{P\left(\mathcal{O}\left|\theta\right.\right)Prior\left(\theta\right)}{Q\left(\theta\right)}$
+                <br><br>
 
-                $P\left(\mathcal{O}\right)=\int P\left(\mathcal{O}\left|\theta\right.\right)P\left(\theta\right)d\theta$
-
-                <br>
-
-                $\mathcal{O}=\left\{ \left(x_{1},y_{1}\right),\left(x_{2},y_{2}\right),\ldots,\left(x_{N},y_{N}\right)\right\}$
-
-                <br>
-
-                $P\left(y^{new}\left|x^{new},\mathcal{\mathcal{O}}\right.\right)=\int P\left(y^{new}\left|x^{new},\theta\right.\right)P\left(\theta\left|\mathcal{O}\right.\right)d\theta$
-
-                <br>
-
-                $P\left(y^{new}\left|x^{new},\mathcal{\mathcal{O}}\right.\right)=\frac{\int P\left(y^{new}\left|x^{new},\theta\right.\right)P\left(\mathcal{O}\left|\theta\right.\right)P\left(\theta\right)d\theta}{\int P\left(\mathcal{O}\left|\theta\right.\right)P\left(\theta\right)d\theta}$
-
-                <br>
-
-                $W_{Q}\left(\theta\right)=\frac{P\left(\mathcal{O}\left|\theta\right.\right)P\left(\theta\right)}{Q\left(\theta\right)}$
-
-                <br>
-
-                $\int P\left(y^{new}\left|x^{new},\theta\right.\right)P\left(\mathcal{O}\left|\theta\right.\right)P\left(\theta\right)d\theta=E_{Q}\left[P\left(y^{new}\left|x^{new},\theta\right.\right)\frac{P\left(\mathcal{O}\left|\theta\right.\right)P\left(\theta\right)}{Q\left(\theta\right)}\right]$
-
-                <br>
-
+                Then we get :<br>
                 $P\left(y^{new}\left|x^{new},\mathcal{\mathcal{O}}\right.\right)=\frac{E_{Q}\left[P\left(y^{new}\left|x^{new},\theta\right.\right)W_{Q}\left(\theta\right)\right]}{E_{Q}\left[W_{Q}\left(\theta\right)\right]}$
-
-                <br>
+                <br><br>
 
                 <!--<b>Notes:</b><br>
                 - This loop does not need to be stopped : as a winning action emerges the other be sampled more rarely.<br>
