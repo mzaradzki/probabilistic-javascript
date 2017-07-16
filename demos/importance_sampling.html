@@ -32,46 +32,83 @@
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/numeric/1.2.6/numeric.js"></script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jstat/1.6.2/jstat.js"></script>
         <script>
-            //var points = [];
-            var Thetas = []; // Thetas = [Theta,...] and Theta = (alpha1, beta1, alpha2, beta2) for Betas distributions B1 and B2
-            Thetas.push( [1,1,1,1] ); // Initial prior distributions
-            var Ps = [0.30, 0.40]; // The Bernoulli probabilities of the Bandits
-
+            
             // Let the random generator run for a while
             for (var burn=0; burn<25; burn++)
             {
                 Math.random();
-                jStat.beta.sample(1, 1);
             }
 
-            for (var i=1; i<500; i++)
+            var sigmoid = function (x) {
+                return 1. / (1. + Math.exp(-x));
+            }
+
+            var Games = []; // Observed data
+            Games.push( {player1:0, player2:3, winner:3} );
+            Games.push( {player1:1, player2:3, winner:3} );
+            Games.push( {player1:2, player2:0, winner:2} );
+            Games.push( {player1:0, player2:1, winner:1} );
+            Games.push( {player1:2, player2:3, winner:3} );
+            Games.push( {player1:2, player2:1, winner:2} );
+            Games.push( {player1:2, player2:0, winner:2} );
+            Games.push( {player1:1, player2:3, winner:3} );
+            Games.push( {player1:1, player2:0, winner:0} );
+            Games.push( {player1:1, player2:2, winner:1} );
+
+            var Thetas = []; // Thetas = [Theta,...] and sigmoid(Theta[i]-Theta[j]) for each "i versus j" Bernoulli
+            var Ws = [];
+
+            var nb_simulations = 500;
+            for (var k=0; k<nb_simulations; k++) // Monte Carlo
             {
-                var Theta = Thetas[i-1];
-                // First simulate Bernoulli probabilities from B1 and B2
-                var p1 = jStat.beta.sample(Theta[0], Theta[1]);
-                var p2 = jStat.beta.sample(Theta[2], Theta[3]);
-
-                // Choose the "best" bandit i.e. highest "p" of success
-                var j = 1; // Bandit 1
-                if (p1<p2)
-                {
-                    j = 2; // Bandit 2
-                }
-                var offset = (j-1)*2; // offset of Theta vector
-
-                var newTheta = Theta.slice(); // deep copy of array
-
-                var P = Ps[j-1]; // The bandit outcome is sampled from its true distribution
-                var win = (Math.random() > (1-P));
-
-                if (win) {
-                    newTheta[offset]+= 1; // alpha parameter of Beta distribution
-                }
-                else {
-                    newTheta[offset+1]+= 1; // beta parameter of Beta distribution
+                // Simulate Theta according to Prior (or, more generally, according to Q)
+                var Theta = []; // TO DO
+                for (var i=0; i<4; i++) {
+                    Theta.push( jStat.normal.sample(0, 1) );
                 }
 
-                Thetas.push( newTheta );
+                Thetas.push(Theta);
+
+                var P_observations = 1.;
+
+                for (var g=0; g<Games.length; g++) { // Observed games
+                    var i = Games[g].player1;
+                    var j = Games[g].player2;
+                    var w = Games[g].winner;
+                    var P_i_vs_j = sigmoid(Theta[i] - Theta[j]);
+
+                    var P_game = 0;
+                    if (w == i) {
+                        P_game = P_i_vs_j
+                    }
+                    else {
+                        P_game = 1 - P_i_vs_j
+                    }
+                    
+                    P_observations *= P_game;
+                }
+                W = P_observations; // more generally W = P(O/theta) * Prior(theta) / Q(theta)
+                Ws.push(W);
+            }
+            var W_sum = 0;
+            for (var k=0; k<nb_simulations; k++) // Monte Carlo
+            {
+                W_sum += Ws[k];
+            }
+
+
+            var newGame = {player1:0, player2:3, winner:null};
+
+            var I = newGame.player1;
+            var J = newGame.player2;
+            var P_I_vs_J = 0; 
+            for (var k=0; k<nb_simulations; k++) // Monte Carlo
+            {
+                // Compute the prediction here
+                var Theta = Thetas[k];
+                var weight = Ws[k] / W_sum;
+                
+                P_I_vs_J += sigmoid(Theta[I] - Theta[J]) * weight;
             }
         </script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.17.0/vis.js"></script>
