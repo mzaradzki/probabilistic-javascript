@@ -43,17 +43,34 @@
                 return 1. / (1. + Math.exp(-x));
             }
 
+            TrueTheta = [-1.27, -0.40, 0.83, 1.23]; // a random draw of independant N(0,1)
+
             var Games = []; // Observed data
-            Games.push( {player1:0, player2:3, winner:3} );
-            Games.push( {player1:1, player2:3, winner:3} );
-            Games.push( {player1:2, player2:0, winner:2} );
-            Games.push( {player1:0, player2:1, winner:1} );
-            Games.push( {player1:2, player2:3, winner:3} );
-            Games.push( {player1:2, player2:1, winner:2} );
-            Games.push( {player1:2, player2:0, winner:2} );
-            Games.push( {player1:1, player2:3, winner:3} );
-            Games.push( {player1:1, player2:0, winner:0} );
-            Games.push( {player1:1, player2:2, winner:1} );
+            Games.push( {player1:1, player2:3, winner:null} );
+            Games.push( {player1:3, player2:1, winner:null} );
+            Games.push( {player1:0, player2:1, winner:null} );
+            Games.push( {player1:1, player2:0, winner:null} );
+            Games.push( {player1:1, player2:2, winner:null} );
+            Games.push( {player1:2, player2:1, winner:null} );
+            Games.push( {player1:2, player2:3, winner:null} );
+            Games.push( {player1:3, player2:2, winner:null} );
+            Games.push( {player1:0, player2:2, winner:null} );
+            Games.push( {player1:2, player2:0, winner:null} );
+            Games.push( {player1:0, player2:3, winner:null} );
+            // We will estimate this one : Games.push( {player1:3, player2:0, winner:null} );
+
+            for (var g=0; g<Games.length; g++) { // Generate face "Observed" games according to made-up probabilities
+                var i = Games[g].player1;
+                var j = Games[g].player2;
+                var P_i_vs_j = sigmoid(TrueTheta[i] - TrueTheta[j]);
+
+                if (Math.random()<P_i_vs_j) {
+                    Games[g].winner = i;
+                }
+                else {
+                    Games[g].winner = j;
+                }
+            }
 
             var Thetas = []; // Thetas = [Theta,...] and sigmoid(Theta[i]-Theta[j]) for each "i versus j" Bernoulli
             var Ws = [];
@@ -97,19 +114,23 @@
             }
 
 
-            var newGame = {player1:0, player2:3, winner:null};
+            var newGame = {player1:3, player2:0, winner:null};
 
             var I = newGame.player1;
             var J = newGame.player2;
-            var P_I_vs_J = 0; 
+            var Pred_P_I_vs_J = 0; 
             for (var k=0; k<nb_simulations; k++) // Monte Carlo
             {
                 // Compute the prediction here
                 var Theta = Thetas[k];
                 var weight = Ws[k] / W_sum;
                 
-                P_I_vs_J += sigmoid(Theta[I] - Theta[J]) * weight;
+                Pred_P_I_vs_J += sigmoid(Theta[I] - Theta[J]) * weight;
             }
+            var True_P_I_vs_J = sigmoid(TrueTheta[I] - TrueTheta[J]);
+            console.log(True_P_I_vs_J);
+            console.log(Pred_P_I_vs_J);
+            //
         </script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.17.0/vis.js"></script>
         <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.17.0/vis.min.css" rel="stylesheet" />
