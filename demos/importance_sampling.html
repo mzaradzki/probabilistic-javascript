@@ -57,7 +57,8 @@
             Games.push( {player1:0, player2:2, winner:null} );
             Games.push( {player1:2, player2:0, winner:null} );
             Games.push( {player1:0, player2:3, winner:null} );
-            // We will estimate this one : Games.push( {player1:3, player2:0, winner:null} );
+            // We will estimate this LAST one :
+            var newGame = {player1:3, player2:0, winner:null};
 
             for (var g=0; g<Games.length; g++) { // Generate face "Observed" games according to made-up probabilities
                 var i = Games[g].player1;
@@ -112,9 +113,6 @@
             {
                 W_sum += Ws[k];
             }
-
-
-            var newGame = {player1:3, player2:0, winner:null};
 
             var I = newGame.player1;
             var J = newGame.player2;
