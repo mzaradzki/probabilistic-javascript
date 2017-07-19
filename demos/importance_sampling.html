@@ -31,6 +31,9 @@
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.3.0/Chart.bundle.min.js"></script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/numeric/1.2.6/numeric.js"></script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jstat/1.6.2/jstat.js"></script>
+
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
         <script>
             
             // Let the random generator run for a while
@@ -71,6 +74,31 @@
                 else {
                     Games[g].winner = j;
                 }
+            }
+
+            // Draw table to observed game results
+            google.charts.load('current', {'packages':['table']});
+            google.charts.setOnLoadCallback(drawTables);
+            function drawTables() {
+                drawTable1();
+                drawTable2();
+            }
+
+            function drawTable1() {
+                var data = new google.visualization.DataTable();
+                data.addColumn('number', 'Game #');
+                data.addColumn('number', 'Team 1');
+                data.addColumn('number', 'Team 2');
+                data.addColumn('number', 'Winner');
+
+                var rows = [];
+                for (var g=0; g<Games.length; g++) {
+                    rows.push( [g+1, Games[g].player1,  Games[g].player2, Games[g].winner] );
+                }
+                data.addRows( rows );
+
+                var table = new google.visualization.Table(document.getElementById('score_table_div'));
+                table.draw(data, {showRowNumber: false, width: '50%', height: '100%'});
             }
 
             var Thetas = []; // Thetas = [Theta,...] and sigmoid(Theta[i]-Theta[j]) for each "i versus j" Bernoulli
@@ -126,8 +154,23 @@
                 Pred_P_I_vs_J += sigmoid(Theta[I] - Theta[J]) * weight;
             }
             var True_P_I_vs_J = sigmoid(TrueTheta[I] - TrueTheta[J]);
-            console.log(True_P_I_vs_J);
-            console.log(Pred_P_I_vs_J);
+
+            function drawTable2() {
+                var data = new google.visualization.DataTable();
+                data.addColumn('number', 'Game #');
+                data.addColumn('number', 'Team 1');
+                data.addColumn('number', 'Team 2');
+                data.addColumn('number', 'True prob. 1 wins');
+                data.addColumn('number', 'Pred. prob. 1 wins');
+
+                var rows = [];
+                rows.push( [12, newGame.player1,  newGame.player2, True_P_I_vs_J, Pred_P_I_vs_J] );
+
+                data.addRows( rows );
+
+                var table = new google.visualization.Table(document.getElementById('prediction_table_div'));
+                table.draw(data, {showRowNumber: false, width: '50%', height: '100%'});
+            }
             //
         </script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.17.0/vis.js"></script>
@@ -203,6 +246,12 @@
                 Lets assume the players are quite young and not well known so we have identical prior distribution on their strength ; a standard gaussian.<br>
                 The strengths of each opponent are such that the probability of A winning over B is :<br>
                 $P=sigmoid(strength(A) - strength(B))$.<br>
+                <br>
+                <h5>Observed data</h5>
+                <div id="score_table_div" class="text-center"></div>
+                <br>
+                <h5>Prediction</h5>
+                <div id="prediction_table_div" class="text-center"></div>
                 <br>
                 <!--<p><b>1st chart</b></p>
                 <div style="width:75%;" class="center-block">
