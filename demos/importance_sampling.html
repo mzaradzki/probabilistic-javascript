@@ -144,14 +144,16 @@
 
             var I = newGame.player1;
             var J = newGame.player2;
-            var Pred_P_I_vs_J = 0; 
+            var Ps = [];
+            var Pred_P_I_vs_J = 0;
             for (var k=0; k<nb_simulations; k++) // Monte Carlo
             {
                 // Compute the prediction here
                 var Theta = Thetas[k];
                 var weight = Ws[k] / W_sum;
-                
-                Pred_P_I_vs_J += sigmoid(Theta[I] - Theta[J]) * weight;
+                var P = sigmoid(Theta[I] - Theta[J]);
+                Ps.push( P );
+                Pred_P_I_vs_J += P * weight;
             }
             var True_P_I_vs_J = sigmoid(TrueTheta[I] - TrueTheta[J]);
 
@@ -250,15 +252,15 @@
                 <h5>Observed data</h5>
                 <div id="score_table_div" class="text-center"></div>
                 <br>
-                <h5>Prediction</h5>
+                <h5>Bayesian Monte-Carlo Prediction Average</h5>
                 <div id="prediction_table_div" class="text-center"></div>
                 <br>
-                <!--<p><b>1st chart</b></p>
+                <h5>Bayesian Monte-Carlo Prediction Histogram</h5>
                 <div style="width:75%;" class="center-block">
                     <canvas id="myChart1"></canvas>
                 </div>
                 <br>
-                <p><b>2nd chart</b> : a posteriori density of A and B success rate</p>
+                <!--<p><b>2nd chart</b> : a posteriori density of A and B success rate</p>
                 <div style="width:75%;" class="center-block">
                     <canvas id="myChart2"></canvas>
                 </div>
@@ -273,35 +275,29 @@
             </div>
         </div></div>
         </div> <!-- /container -->
-        <!--<script>
+        <script>
             var ctx1 = document.getElementById("myChart1").getContext("2d");
             var mindex = [];
-            var meanAx = [];
-            var meanBx = [];
+            var H1s = [];
+            for (var b=0; b<10; b++) {
+                mindex.push( (0.05 + b*0.10).toFixed(2) ) ;
+                H1s.push( 0 );
+            }
             var step = 10;
-            for (var s=0; s<Thetas.length/step; s++) {
-                var i = s*step;
-                mindex.push( i );
-                meanAx.push( Thetas[i][0]/(Thetas[i][0]+Thetas[i][1]) );
-                meanBx.push( Thetas[i][2]/(Thetas[i][2]+Thetas[i][3]) );
+            for (var k=0; k<nb_simulations; k++) {
+                var bucket = Math.floor(Ps[k]*10);
+                H1s[bucket] = H1s[bucket] + Ws[k];
             }
             var myChart1 = new Chart(ctx1, {
-                type: 'line',
+                type: 'bar',
                 data: {
                     labels: mindex,
                     datasets: [
                         {
-                            label: 'Mean Prob. A',
-                            data: meanAx,
+                            label: 'XXX',
+                            data: H1s,
                             backgroundColor: 'rgba(255, 90, 90, 1)',
                             borderColor: 'rgba(255, 90, 90, 0.4)',
-                            fill: false,
-                        },
-                        {
-                            label: 'Mean Prob. B',
-                            data: meanBx,
-                            backgroundColor: 'rgba(90, 255, 90, 1)',
-                            borderColor: 'rgba(90, 255, 90, 0.4)',
                             fill: false,
                         },
                     ],
@@ -309,7 +305,7 @@
                 options: {
                     // see : http://stackoverflow.com/questions/37204298/chartjs-v2-hide-dataset-labels
                     legend: {
-                        display: true
+                        display: false
                     },
                     scales: {
                         yAxes: [{
@@ -321,7 +317,7 @@
                 },
             });
         </script>
-        <script>
+        <!--<script>
             var ctx2 = document.getElementById("myChart2").getContext("2d");
             var X = [];
             var Pa = [];
