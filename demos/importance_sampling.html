@@ -240,15 +240,22 @@
                 Then we get :<br>
                 $P\left(y^{new}\left|x^{new},\mathcal{\mathcal{O}}\right.\right)=\frac{E_{Q}\left[P\left(y^{new}\left|x^{new},\theta\right.\right)W_{Q}\left(\theta\right)\right]}{E_{Q}\left[W_{Q}\left(\theta\right)\right]}$
                 <br><br>
+                <b>Remark :</b> Computationaly the MC approach is convenient as it only requires to be able to compute the likelihood of the observed data given a set of model parameters. There is no need to find optimize the set of parameters like in the frequentist MLE approach. The inconvenient is that running MC simulations may be "intensive" but with today computers this is not an issue.
+                <br><br>
             </div>
             <div class="row">
                 <h4>Example</h4>
                 For this experiment lets consider a tennis tournament with 4 players.<br>
                 The players are labelled 0,1,2,3 and their actual strength (the model need to infer it from scores) is increasing with their labels.<br>
                 Lets assume the players are quite young and not well known so we have identical prior distribution on their strength ; a standard gaussian.<br>
-                The strengths of each opponent are such that the probability of A winning over B is :<br>
-                $P=sigmoid(strength(A) - strength(B))$.<br>
                 <br>
+                The strengths of each opponent are such that the probability of X winning over Y is :<br>
+                $P\left(X>Y\left|strengths\right.\right)=\sigma\left(strength\left(X\right)-strength\left(Y\right)\right)$<br>
+                <b>Remark :</b> $\sigma$ denotes the sigmoid function that "squash" values between 0 and 1.<br>
+                <br>
+                Assuming that the outcome of each game is independant (conditionally on strengths) from the other ones we get the likelihood of the observed games as follow :<br>
+                $P\left(\mathcal{O}=Games\left|\theta=strengths\right.\right)=\prod_{g\in Games}P\left(g\left(winner\right)>g\left(loser\right)\left|\theta\right.\right)$
+                <br><br>
                 <h5>Observed data</h5>
                 <div id="score_table_div" class="text-center"></div>
                 <br>
@@ -294,7 +301,7 @@
                     labels: mindex,
                     datasets: [
                         {
-                            label: 'XXX',
+                            label: 'forecast frequency',
                             data: H1s,
                             backgroundColor: 'rgba(255, 90, 90, 1)',
                             borderColor: 'rgba(255, 90, 90, 0.4)',
