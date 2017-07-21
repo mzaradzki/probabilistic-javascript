@@ -256,6 +256,8 @@
                 Assuming that the outcome of each game is independant (conditionally on strengths) from the other ones we get the likelihood of the observed games as follow :<br>
                 $P\left(\mathcal{O}=Games\left|\theta=strengths\right.\right)=\prod_{g\in Games}P\left(g\left(winner\right)>g\left(loser\right)\left|\theta\right.\right)$
                 <br><br>
+                <b>Remark :</b> The hypothesis of independant game outcome is **not required** to apply Importance Sampling but for this quick and simple JavaScript demo it is convenient to simplify the likelihood function. 
+                <br><br>
                 <h5>Observed data</h5>
                 <div id="score_table_div" class="text-center"></div>
                 <br>
