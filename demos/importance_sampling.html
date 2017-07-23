@@ -105,6 +105,49 @@
             var Ws = [];
 
             var nb_simulations = 500;
+            // Probabilistic Model
+            var Likelihood = function (game, strengths) {
+                var i = game.player1;
+                var j = game.player2;
+                var w = game.winner;
+                var P_i_vs_j = sigmoid(strengths[i] - strengths[j]);
+
+                var P_game = 0;
+                if (w == i) {
+                    P_game = P_i_vs_j
+                }
+                else {
+                    P_game = 1 - P_i_vs_j
+                }
+                return P_game;
+            }
+            var LogLikelihood = function (game, strengths) {
+                return Math.log( Likelihood(game, strengths) );
+            }
+            var GradLogLikelihood = function (game, strengths) {
+                // P = log(sigma(p1-p2))
+                // Grad(P) = 1/sigma * sigma' = 1/sigma * sigma(delta) * (1-sigma(delta)) = 1-sigma(delta)
+                var grads = [];
+                for (var s=0; s<strengths.length; s++) {
+                    grads.push(0.);
+                }
+                var i = game.player1;
+                var j = game.player2;
+                var w = game.winner;
+
+                if (w == i) {
+                    var dlt = strengths[i] - strengths[j];
+                    grads[i] = 1-sigmoid(dlt);
+                    grads[j] = -grads[i];
+                }
+                else {
+                    var dlt = strengths[j] - strengths[i];
+                    grads[j] = 1-sigmoid(dlt);
+                    grads[i] = -grads[j];
+                }
+                return grads;
+            }
+            // Importance Sampling
             for (var k=0; k<nb_simulations; k++) // Monte Carlo
             {
                 // Simulate Theta according to Prior (or, more generally, according to Q)
@@ -118,20 +161,7 @@
                 var P_observations = 1.;
 
                 for (var g=0; g<Games.length; g++) { // Observed games
-                    var i = Games[g].player1;
-                    var j = Games[g].player2;
-                    var w = Games[g].winner;
-                    var P_i_vs_j = sigmoid(Theta[i] - Theta[j]);
-
-                    var P_game = 0;
-                    if (w == i) {
-                        P_game = P_i_vs_j
-                    }
-                    else {
-                        P_game = 1 - P_i_vs_j
-                    }
-                    
-                    P_observations *= P_game;
+                    P_observations *= Likelihood(Games[g], Theta);
                 }
                 W = P_observations; // more generally W = P(O/theta) * Prior(theta) / Q(theta)
                 Ws.push(W);
@@ -327,103 +357,7 @@
             });
         </script>
         <!--<script>
-            var ctx2 = document.getElementById("myChart2").getContext("2d");
-            var X = [];
-            var Pa = [];
-            var Pb = [];
-            var i = Thetas.length-1;
-            var steps = 50;
-            for (var s=0; s<=steps; s++) {
-                var x = s/steps;
-                X.push( x );
-                Pa.push( jStat.beta.pdf(x, Thetas[i][0], Thetas[i][1]) );
-                Pb.push( jStat.beta.pdf(x, Thetas[i][2], Thetas[i][3]) );
-            }
-            var myChart2 = new Chart(ctx2, {
-                type: 'line',
-                data: {
-                    labels: X,
-                    datasets: [
-                        {
-                            label: 'pdf of Prob. A',
-                            data: Pa,
-                            backgroundColor: 'rgba(255, 90, 90, 0.5)',
-                            borderColor: 'rgba(255, 90, 90, 0.5)',
-                            fill: true,
-                        },
-                        {
-                            label: 'pdf of Prob. B',
-                            data: Pb,
-                            backgroundColor: 'rgba(90, 255, 90, 0.5)',
-                            borderColor: 'rgba(90, 255, 90, 0.5)',
-                            fill: true,
-                        },
-                    ],
-                },
-                options: {
-                    // see : http://stackoverflow.com/questions/37204298/chartjs-v2-hide-dataset-labels
-                    legend: {
-                        display: true
-                    },
-                    elements: { point: { radius: 0 } }, // hide "dots"
-                    scales: {
-                        yAxes: [{
-                            ticks: {
-                                beginAtZero: true
-                            }
-                        }]
-                    },
-                },
-            });
-        </script>
-        <script>
-            var ctx3 = document.getElementById("myChart3").getContext("2d");
-            var mindex = [];
-            var Pbest = [];
-            var steps = 10;
-            for (var s=0; s<Thetas.length/steps; s++) {
-                var i = s*steps;
-                mindex.push( i );
-                var p_best = 0;
-                var w_total = 0;
-                for (k=1; k<25; k++) { // numerical integration
-                    var x = k/25;
-                    var w = jStat.beta.pdf(x, Thetas[i][0], Thetas[i][1]);
-                    w_total+= w;
-                    p_best+= w * ( 1-jStat.beta.cdf(x, Thetas[i][2], Thetas[i][3]) );
-                }
-
-                Pbest.push( p_best/w_total );
-            }
-            var myChart3 = new Chart(ctx3, {
-                type: 'line',
-                data: {
-                    labels: mindex,
-                    datasets: [
-                        {
-                            label: 'Prob. best choice',
-                            data: Pbest,
-                            backgroundColor: 'rgba(255, 90, 90, 0.5)',
-                            borderColor: 'rgba(255, 90, 90, 0.5)',
-                            fill: true,
-                        },
-                    ],
-                },
-                options: {
-                    // see : http://stackoverflow.com/questions/37204298/chartjs-v2-hide-dataset-labels
-                    legend: {
-                        display: true
-                    },
-                    //elements: { point: { radius: 0 } }, // hide "dots"
-                    scales: {
-                        yAxes: [{
-                            ticks: {
-                                beginAtZero: true
-                            }
-                        }]
-                    },
-                },
-            });
+            
         </script>-->
     </body>
 </html>
