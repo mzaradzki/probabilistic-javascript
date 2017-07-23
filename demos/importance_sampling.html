@@ -54,14 +54,15 @@
             Games.push( {player1:0, player2:1, winner:null} );
             Games.push( {player1:1, player2:0, winner:null} );
             Games.push( {player1:1, player2:2, winner:null} );
-            Games.push( {player1:2, player2:1, winner:null} );
+            //Games.push( {player1:2, player2:1, winner:null} );
             Games.push( {player1:2, player2:3, winner:null} );
             Games.push( {player1:3, player2:2, winner:null} );
             Games.push( {player1:0, player2:2, winner:null} );
             Games.push( {player1:2, player2:0, winner:null} );
             Games.push( {player1:0, player2:3, winner:null} );
+            Games.push( {player1:3, player2:0, winner:null} );
             // We will estimate this LAST one :
-            var newGame = {player1:3, player2:0, winner:null};
+            var newGame = {player1:2, player2:1, winner:null};
 
             for (var g=0; g<Games.length; g++) { // Generate face "Observed" games according to made-up probabilities
                 var i = Games[g].player1;
@@ -82,6 +83,7 @@
             function drawTables() {
                 drawTable1();
                 drawTable2();
+                drawTable3();
             }
 
             function drawTable1() {
@@ -104,7 +106,7 @@
             var Thetas = []; // Thetas = [Theta,...] and sigmoid(Theta[i]-Theta[j]) for each "i versus j" Bernoulli
             var Ws = [];
 
-            var nb_simulations = 500;
+            var nb_simulations = 1000;
             // Probabilistic Model
             var Likelihood = function (game, strengths) {
                 var i = game.player1;
@@ -204,15 +206,21 @@
                 table.draw(data, {showRowNumber: false, width: '50%', height: '100%'});
             }
 
-            // MLE for frequentist comparison
-            function MLE(maxiters) {
+            // MLE for frequentist comparison - Newton ascent version
+            function MLE1(start, maxiters) {
+
+                // WARNING : the model is insensitive to a common shift in Theta values
+                // Thus maybe we should constrain the SUM of Thetas to be 0 ???
 
                 var ThetaMLE = [];
-                for (var s=0; s<TrueTheta.length; s++) {
-                    ThetaMLE.push( TrueTheta[s] ); // INFO : could also randomly pick one of the Thetas !
+                if (start === null) {
+                    start = TrueTheta;
+                }
+                for (var s=0; s<start.length; s++) {
+                    ThetaMLE.push( start[s] ); // INFO : could also randomly pick one of the Thetas !
                 }
 
-                var lr = 0.05; // learning rate
+                var lr = 0.10; // learning rate
 
                 for (var iter=0; iter<maxiters; iter++) {
                     var Grad = [];
@@ -223,12 +231,59 @@
                         Grad = numeric.add( Grad, GradLogLikelihood(Games[g], ThetaMLE) );
                     }
                     //console.log(Grad);
-                    console.log(numeric.norm2(Grad));
+                    //console.log(numeric.norm2(Grad));
                     ThetaMLE = numeric.add(ThetaMLE, numeric.mul(Grad, lr)); // Maximization !
                     //console.log(ThetaMLE);
                 }
-                console.log(TrueTheta);
+                //console.log(TrueTheta);
+                console.log(start);
                 console.log(ThetaMLE);
+                return ThetaMLE;
+            }
+            // MLE for frequentist comparison - dumb version, pick the best in the MC pool
+            function MLE2() {
+
+                var ll_total_max = null;
+                var theta_max = null;
+
+                for (var t=0; t<Thetas.length; t++) {
+                    LLs = []
+                    for (var g=0; g<Games.length; g++) {
+                        LLs.push( LogLikelihood(Games[g], Thetas[t]) );
+                    }
+                    var ll_total = numeric.sum( LLs );
+                    if (t == 0) {
+                        ll_total_max = ll_total;
+                        theta_max = Thetas[t];
+                    }
+                    if (ll_total_max < ll_total) {
+                        ll_total_max = ll_total;
+                        theta_max = Thetas[t];
+                    }
+                }
+                console.log(theta_max);
+                console.log(ll_total_max);
+                return theta_max;
+            }
+            //
+            function drawTable3() {
+                var data = new google.visualization.DataTable();
+                data.addColumn('number', 'Game #');
+                data.addColumn('number', 'Team 1');
+                data.addColumn('number', 'Team 2');
+                data.addColumn('number', 'True prob. T1 wins');
+                data.addColumn('number', 'Pred. prob. T1 wins');
+
+                T = MLE1(MLE2(), 100);
+                Freq_P_I_vs_J = sigmoid(T[I] - T[J])
+
+                var rows = [];
+                rows.push( [12, newGame.player1,  newGame.player2, True_P_I_vs_J, Freq_P_I_vs_J] );
+
+                data.addRows( rows );
+
+                var table = new google.visualization.Table(document.getElementById('freq_prediction_table_div'));
+                table.draw(data, {showRowNumber: false, width: '50%', height: '100%'});
             }
             //
         </script>
@@ -326,18 +381,10 @@
                     <canvas id="myChart1"></canvas>
                 </div>
                 <br>
-                <!--<p><b>2nd chart</b> : a posteriori density of A and B success rate</p>
-                <div style="width:75%;" class="center-block">
-                    <canvas id="myChart2"></canvas>
-                </div>
+                <h5>Frequentist (MLE) Prediction (still need code review)</h5>
+                <p>If you re-run the page several times you will note it varies more than the Bayesian estimate.</p>
+                <div id="freq_prediction_table_div" class="text-center"></div>
                 <br>
-                <p><b>3rd chart</b> : probability to picking the best action</p>
-                Here we use the running $\Theta_{a,b}$ parameters to compute $P\left(B_{b}\geq B_{a}\right)$.<br>
-                Remark : There is no closed-formula for this but this is a simple 1d numerical integration.<br>
-                <div style="width:75%;" class="center-block">
-                    <canvas id="myChart3"></canvas>
-                </div>
-                <br>-->
             </div>
         </div></div>
         </div> <!-- /container -->
