@@ -203,6 +203,33 @@
                 var table = new google.visualization.Table(document.getElementById('prediction_table_div'));
                 table.draw(data, {showRowNumber: false, width: '50%', height: '100%'});
             }
+
+            // MLE for frequentist comparison
+            function MLE(maxiters) {
+
+                var ThetaMLE = [];
+                for (var s=0; s<TrueTheta.length; s++) {
+                    ThetaMLE.push( TrueTheta[s] ); // INFO : could also randomly pick one of the Thetas !
+                }
+
+                var lr = 0.05; // learning rate
+
+                for (var iter=0; iter<maxiters; iter++) {
+                    var Grad = [];
+                    for (var s=0; s<ThetaMLE.length; s++) {
+                        Grad.push( 0 );
+                    }
+                    for (var g=0; g<Games.length; g++) {
+                        Grad = numeric.add( Grad, GradLogLikelihood(Games[g], ThetaMLE) );
+                    }
+                    //console.log(Grad);
+                    console.log(numeric.norm2(Grad));
+                    ThetaMLE = numeric.add(ThetaMLE, numeric.mul(Grad, lr)); // Maximization !
+                    //console.log(ThetaMLE);
+                }
+                console.log(TrueTheta);
+                console.log(ThetaMLE);
+            }
             //
         </script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.17.0/vis.js"></script>
